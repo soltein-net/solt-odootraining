@@ -1,0 +1,54 @@
+<odoo>
+  <data>
+    <!-- Vista Tree (lista) -->
+    <record id="view_purchase_contract_tree" model="ir.ui.view">
+        <field name="name">Purchase Contract Tree</field>
+        <field name="model">purchase.contract</field>
+        <field name="arch" type="xml">
+            <tree string="Contratos de compra">
+                <field name="name"/>
+                <field name="description"/>
+                <field name="purchase_order_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Vista Formulario -->
+    <record id="view_purchase_contract_form" model="ir.ui.view">
+        <field name="name">Purchase Contract Form</field>
+        <field name="model">purchase.contract</field>
+        <field name="arch" type="xml">
+            <form string="Contratos de compra">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="description"/>
+                        <field name="purchase_order_id"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción para Contratos -->
+    <record id="action_purchase_contract" model="ir.actions.act_window">
+        <field name="name">Purchase Contracts</field>
+        <field name="res_model">purchase.contract</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p>
+                Aquí puedes gestionar los contratos relacionados con las órdenes de compra.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menú para Contratos -->
+    <menuitem id="menu_purchase_contract_root"
+              name="Contratos de compras"
+              parent="purchase.menu_purchase_root"
+              sequence="20"
+              action="action_purchase_contract"/>
+
+
+  </data>
+</odoo>
