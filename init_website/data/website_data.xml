@@ -1,0 +1,10 @@
+<odoo>
+      <data>
+          <record id="menu_mi_pagina" model="website.menu">
+              <field name="name">Mi Primera Página</field>
+              <field name="url">/mi_pagina</field>
+              <field name="parent_id" ref="website.main_menu"/>
+              <field name="sequence" type="int">10</field>
+            </record>
+      </data>
+</odoo>

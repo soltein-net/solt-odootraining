@@ -1,0 +1,10 @@
+<odoo>
+    <data>
+        <template id="mi_plantilla" name="Mi Página Personalizada">
+            <div class="oe_structure">
+                <h1>Bienvenido a mi página personalizada</h1>
+                <p>Este es un contenido estático que puedes personalizar.</p>
+            </div>
+        </template>
+    </data>
+</odoo>
