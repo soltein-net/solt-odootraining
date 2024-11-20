@@ -4,9 +4,9 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Restart Odoo Service",
+            "label": "Upgrade app1 module",
             "type": "shell",
-            "command": "echo Hello"
+            "command": "odoo -c /etc/odoo/odoo.conf -u app1 -d solt-odootraining -p 9999 --stop-after-init"
         }
     ]
 }
