@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_crypto_token_user,access_crypto_token_user,model_crypto_token,base.group_user,1,1,1,1
+access_crypto_wallet_tokens_user,access_crypto_wallet_tokens_user,model_crypto_wallet_tokens,base.group_user,1,1,1,1
+access_crypto_wallet_user,access_crypto_wallet_user,model_crypto_wallet,base.group_user,1,1,1,1

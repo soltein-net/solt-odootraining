@@ -1,8 +1,8 @@
 {
-    'name': 'Mi Modulo Personalizado',
+    'name': 'Mi Crypto Wallet Extended',
     'version': '1.0',
     'category': 'Custom',
-    'author': 'Tu Nombre',
+    'author': 'Odoo Student',
     'depends': ['purchase', 'product'],
     'data': [
         # 'security/ir.model.access.csv',
@@ -12,5 +12,5 @@
 
     ],
     'installable': True,
-    'application': False,
+    'application': True,
 }

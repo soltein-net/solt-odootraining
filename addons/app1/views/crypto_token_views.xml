@@ -1,0 +1,45 @@
+<odoo>
+  <data>
+    <!-- Vista Tree (lista) -->
+    <record id="view_crypto_token_tree" model="ir.ui.view">
+      <field name="name">crypto.token.tree</field>
+      <field name="model">crypto.token</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name"/>
+          <field name="symbol"/>
+          <field name="description"/>
+          <field name="layer"/>
+          <field name="current_price"/>
+        </tree>
+      </field>
+    </record>
+
+    <!-- Vista Formulario -->
+    <record id="view_crypto_token_form" model="ir.ui.view">
+      <field name="name">crypto.token.form</field>
+      <field name="model">crypto.token</field>
+      <field name="arch" type="xml">
+        <form>
+          <sheet>
+            <group>
+              <field name="name"/>
+              <field name="symbol"/>
+              <field name="description"/>
+              <field name="layer"/>
+              <field name="current_price"/>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <!-- Acciones -->
+    <record id="action_crypto_token" model="ir.actions.act_window">
+      <field name="name">Crypto Tokens</field>
+      <field name="res_model">crypto.token</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+   
+  </data>
+</odoo>

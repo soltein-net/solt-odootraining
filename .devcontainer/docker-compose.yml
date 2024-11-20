@@ -1,0 +1,55 @@
+services:
+  solt-odootraining:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    
+    depends_on:
+      - postgres
+
+    volumes:
+      - "../:/workspaces/solt-odootraining"
+
+      - "../odoo:/etc/odoo"
+
+      - solt-odootraining_web:/var/lib/odoo
+
+      - ${ENTERPRISE_ADDONS}:/mnt/extra-addons/enterprise_addons
+      - ${THEME_ADDONS}:/mnt/extra-addons/theme_addons
+
+      - ${CUSTOM_ADDONS}:/mnt/extra-addons/custom_addons
+
+      - ${OCA_ADDONS}:/mnt/extra-addons/OCA
+    
+    env_file:
+          - .env
+          
+    ports:
+      - "8069:8069"
+      - "8071:8071"
+      - "8072:8072"
+
+  postgres:
+    image: postgres:latest
+    restart: always
+    container_name: db
+
+    env_file:
+          - .env
+
+    volumes:
+      - solt-odootraining_pg:/var/lib/postgresql
+      - solt-odootraining_pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    
+networks:
+  default:
+    name: my_network
+    external: true
+    
+volumes:
+  solt-odootraining_web:
+
+  solt-odootraining_pg:
+  solt-odootraining_pg_data:

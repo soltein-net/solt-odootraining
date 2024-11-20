@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Top menu item -->
+    <menuitem name="Mi Crypto Wallet"
+        id="menu_wallet"
+        groups="base.group_user"
+        web_icon="app1,static/description/icon.png"
+        sequence="55">
+        <menuitem id="menu_wallet_1" name="Wallets" action="action_crypto_wallet" groups="base.group_user" sequence="1"/>
+        <menuitem id="menu_token_1" name="Tokens" action="action_crypto_token" groups="base.group_user" sequence="2"/>
+    </menuitem>
+</odoo>
