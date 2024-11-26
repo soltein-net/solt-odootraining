@@ -1,3 +1,4 @@
+debugpy
 pydevd-odoo
-radon>=5.1
+radon==5.1
 mypy

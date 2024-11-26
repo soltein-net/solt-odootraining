@@ -1,3 +1,19 @@
 {
-    "python.languageServer": "None"
+    "python.languageServer": "None",
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "server": "db",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "local_pg",
+            "database": "template0",
+            "username": "odoo"
+        }
+    ],
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.formatOnSave": true,
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    }
 }

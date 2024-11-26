@@ -29,8 +29,18 @@
 	// Uncomment the next line if you want to keep your containers running after VS Code shuts down.
 	// "shutdownAction": "none",
 
+	// we are going to install some python deps
+	// into the user's home directory
+	// so we need to add it to the path
+	"containerEnv": {
+		"PATH": "${PATH}:/home/vscode/.local/bin"
+	},
+	"remoteEnv": {
+		"PATH": "${containerEnv:PATH}"
+	},
+
 	// Uncomment the next line to run commands after the container is created.
-	// "postCreateCommand": "cat /etc/os-release",
+	"postCreateCommand": "pip install -r .devcontainer/requirements_dev.txt",
 
 	// Configure tool-specific properties.
 	"customizations": {
@@ -60,7 +70,7 @@
 
 
 				// python linters (complexity)
-				//"ChristianDein.python-radon",
+				"ChristianDein.python-radon",
 
 				// odoo
 				"trinhanhngoc.vscode-odoo",
