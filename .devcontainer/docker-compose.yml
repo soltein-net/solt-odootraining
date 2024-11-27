@@ -21,6 +21,12 @@ services:
 
       - ${OCA_ADDONS}:/mnt/extra-addons/OCA
     
+    environment:
+      - ENTERPRISE_ADDONS
+      - THEME_ADDONS
+      - CUSTOM_ADDONS
+      - OCA_ADDONS
+
     env_file:
           - .env
           
