@@ -14,19 +14,13 @@ services:
 
       - solt-odootraining_web:/var/lib/odoo
 
-      - ${ENTERPRISE_ADDONS}:/mnt/extra-addons/enterprise_addons
-      - ${THEME_ADDONS}:/mnt/extra-addons/theme_addons
+      - ${ENTERPRISE_ADDONS:-../enterprise_addons}:/mnt/extra-addons/enterprise_addons
+      - ${THEME_ADDONS:-../theme_addons}:/mnt/extra-addons/theme_addons
 
-      - ${CUSTOM_ADDONS}:/mnt/extra-addons/custom_addons
+      - ${CUSTOM_ADDONS:-../addons}:/mnt/extra-addons/custom_addons
 
-      - ${OCA_ADDONS}:/mnt/extra-addons/OCA
-    
-    env_file:
-      - path: ./default.env
-        required: true # default
-      - path: ./override.env
-        required: false
-          
+      - ${OCA_ADDONS:-../OCA/addons}:/mnt/extra-addons/OCA
+              
     ports:
       - "8069:8069"
       - "8071:8071"
