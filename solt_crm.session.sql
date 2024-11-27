@@ -1,0 +1,1 @@
+update res_users set password = 'admin' where login = 'admin';

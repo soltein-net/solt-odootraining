@@ -24,3 +24,19 @@ RUN groupadd --gid $USER_GID $USERNAME \
 
 # switch back to the odoo user
 USER odoo
+
+# set some defaults
+# ----------------------------------------
+
+ENV ENTERPRISE_ADDONS=../../odoo_src/enterprise_addons
+ENV THEME_ADDONS=../../odoo/src/theme_addons
+
+ENV OCA_ADDONS=../../OCA/addons
+ENV OPEN_UPGRADE=../../OCA/OpenUpgrade
+
+ENV CUSTOM_ADDONS=../addons
+
+ENV OPENUPGRADE_TARGET_VERSION=17.0
+
+ENV ENTRYPOINT="python3 -m debugpy --listen localhost:5678 /usr/bin/odoo -c /etc/odoo/odoo.conf"
+#ENTRYPOINT=/usr/bin/odoo -d upgrade -c /etc/odoo/odoo.conf -upgrade-path=/var/lib/odoo/OpenUpgrade/openupgrade_scripts/scripts --update all --stop-after-init --load=base,web,mail,openupgrade_framework

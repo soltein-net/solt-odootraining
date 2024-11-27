@@ -1,12 +1,11 @@
 {
 	"folders": [
 		{
-			"path": ".", 
+			"path": ".",
 		},
 		{
 			"path": "/usr/lib/python3/dist-packages/odoo/"
 		}
-
 	],
 	"settings": {
 		"python.languageServer": "None"

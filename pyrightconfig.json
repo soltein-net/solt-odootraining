@@ -1,0 +1,9 @@
+{
+    "stubPath": "../../odoo_src/odoo-stubs17",
+    "extraPaths": [
+        "addons",
+        "../../OCA/addons",
+        "/usr/lib/python3/dist-packages/odoo/",
+        "/usr/lib/python3/dist-packages/odoo/addons"
+    ]
+}
