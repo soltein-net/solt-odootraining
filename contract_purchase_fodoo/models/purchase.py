@@ -21,9 +21,12 @@ class PurchaseOrder(models.Model):
         new_order = self.create({
             'partner_id': original_order.partner_id.id,
             'order_line': [(0, 0, {
+                'name': line.name,
                 'product_id': line.product_id.id,
+                'product_uom': line.product_uom.id,
                 'product_qty': line.product_qty,
                 'price_unit': line.price_unit,
+                'date_planned': line.date_planned,
             }) for line in original_order.order_line],
             'is_recurrent': True,  # Heredamos la propiedad recurrente
         })
