@@ -26,11 +26,13 @@ class PurchaseOrder(models.Model):
                 'product_uom': line.product_uom.id,
                 'product_qty': line.product_qty,
                 'price_unit': line.price_unit,
+                'taxes_id': [(6, 0, line.taxes_id.ids)],
                 'date_planned': line.date_planned,
             }) for line in original_order.order_line],
             'is_recurrent': True,  # Heredamos la propiedad recurrente
         })
         return new_order
+
 
 
 class PurchaseOrderLine(models.Model):
