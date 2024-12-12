@@ -1,0 +1,13 @@
+<odoo>
+    <record id="view_purchase_order_line_tree_inherited" model="ir.ui.view">
+        <field name="name">purchase.order.line.tree.inherited</field>
+        <field name="model">purchase.order.line</field>
+        <field name="inherit_id" ref="purchase.purchase_order_line_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='price_subtotal']" position="after">
+                <field name="extra_amount" string="Monto Extra"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
++

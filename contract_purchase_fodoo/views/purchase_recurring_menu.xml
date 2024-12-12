@@ -1,0 +1,23 @@
+<odoo>
+    <menuitem id="menu_purchase_recurring_root"
+              name="Compras Recurrentes"
+              parent="purchase.menu_purchase_root"
+              sequence="10"
+              groups="group_purchase_recurring"/>
+
+    <record id="action_purchase_recurring" model="ir.actions.act_window">
+        <field name="name">Compras Generadas</field>
+        <field name="res_model">purchase.order</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('is_recurrent', '=', True), ('state', '=', 'draft')]</field>
+    </record>
+
+    <menuitem id="menu_purchase_recurring"
+              name="Compras Generadas"
+              parent="menu_purchase_recurring_root"
+              action="action_purchase_recurring"
+              sequence="20"
+              groups="group_purchase_recurring"/>
+
+
+</odoo>

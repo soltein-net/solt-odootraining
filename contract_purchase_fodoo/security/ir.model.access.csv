@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_purchase_contract_user,access_purchase_contract_user,model_purchase_contract,base.group_user,1,1,1,0
+access_purchase_recurring,access_purchase_recurring,model_purchase_order,group_purchase_recurring,1,1,1,0
+
