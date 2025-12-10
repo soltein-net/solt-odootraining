@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Main Menu -->
+    <menuitem id="library_menu_root"
+              name="Library"
+              sequence="10"
+              web_icon="library,static/description/icon.png"/>
+
+    <!-- Operations Submenu -->
+    <menuitem id="library_menu_operations"
+              name="Operations"
+              parent="library_menu_root"
+              sequence="10"/>
+
+    <menuitem id="library_menu_loans"
+              name="Loans"
+              parent="library_menu_operations"
+              action="library_loan_action"
+              sequence="10"/>
+
+    <menuitem id="library_menu_overdue_loans"
+              name="Overdue Loans"
+              parent="library_menu_operations"
+              action="library_loan_overdue_action"
+              sequence="20"/>
+
+    <!-- Catalog Submenu -->
+    <menuitem id="library_menu_catalog"
+              name="Catalog"
+              parent="library_menu_root"
+              sequence="20"/>
+
+    <menuitem id="library_menu_books"
+              name="Books"
+              parent="library_menu_catalog"
+              action="library_book_action"
+              sequence="10"/>
+
+    <menuitem id="library_menu_authors"
+              name="Authors"
+              parent="library_menu_catalog"
+              action="library_author_action"
+              sequence="20"/>
+
+    <menuitem id="library_menu_categories"
+              name="Categories"
+              parent="library_menu_catalog"
+              action="library_category_action"
+              sequence="30"/>
+
+    <!-- Members Submenu -->
+    <menuitem id="library_menu_members_parent"
+              name="Members"
+              parent="library_menu_root"
+              sequence="30"/>
+
+    <menuitem id="library_menu_members"
+              name="All Members"
+              parent="library_menu_members_parent"
+              action="library_member_action"
+              sequence="10"/>
+
+    <!-- Configuration Submenu -->
+    <menuitem id="library_menu_configuration"
+              name="Configuration"
+              parent="library_menu_root"
+              sequence="100"
+              groups="solt_library.library_group_manager"/>
+</odoo>

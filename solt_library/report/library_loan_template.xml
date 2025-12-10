@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="report_loan_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2 class="text-center">Loan Receipt</h2>
+                        <h3 class="text-center text-muted" t-field="doc.reference"/>
+
+                        <div class="row mt-4">
+                            <div class="col-6">
+                                <strong>Member:</strong>
+                                <p t-field="doc.member_id.name"/>
+                                <p>Code: <span t-field="doc.member_id.code"/></p>
+                            </div>
+                            <div class="col-6">
+                                <strong>Loan Date:</strong>
+                                <p t-field="doc.loan_date"/>
+                                <strong>Return Date:</strong>
+                                <p t-field="doc.expected_return_date"/>
+                            </div>
+                        </div>
+
+                        <table class="table table-bordered mt-4">
+                            <thead>
+                                <tr>
+                                    <th>Book</th>
+                                    <th>ISBN</th>
+                                    <th>Author(s)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td t-field="doc.book_id.name"/>
+                                    <td t-field="doc.book_isbn"/>
+                                    <td t-field="doc.book_authors"/>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <p class="text-muted">
+                                    <strong>Terms and Conditions:</strong><br/>
+                                    - The book must be returned before the indicated date.<br/>
+                                    - A late fee of $0.50 per day will be charged for overdue items.<br/>
+                                    - In case of loss, the member must cover the book's cost.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="row mt-5">
+                            <div class="col-6 text-center">
+                                <p>_________________________</p>
+                                <p>Librarian Signature</p>
+                            </div>
+                            <div class="col-6 text-center">
+                                <p>_________________________</p>
+                                <p>Member Signature</p>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

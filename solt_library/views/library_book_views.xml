@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="library_book_tree" model="ir.ui.view">
+        <field name="name">library.book.tree</field>
+        <field name="model">library.book</field>
+        <field name="arch" type="xml">
+            <tree decoration-danger="state == 'unavailable'"
+                  decoration-warning="state == 'low_stock'">
+                <field name="name"/>
+                <field name="isbn"/>
+                <field name="author_ids" widget="many2many_tags"/>
+                <field name="category_id"/>
+                <field name="available_qty"/>
+                <field name="total_qty"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'available'"
+                       decoration-warning="state == 'low_stock'"
+                       decoration-danger="state == 'unavailable'"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="library_book_form" model="ir.ui.view">
+        <field name="name">library.book.form</field>
+        <field name="model">library.book</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <field name="image_1920" widget="image" class="oe_avatar"
+                           options="{'preview_image': 'image_128'}"/>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Book Title"/></h1>
+                        <field name="author_ids" widget="many2many_tags"
+                               placeholder="Authors..."/>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="isbn"/>
+                            <field name="category_id"/>
+                            <field name="publisher"/>
+                            <field name="language"/>
+                        </group>
+                        <group>
+                            <field name="publication_date"/>
+                            <field name="pages"/>
+                            <field name="total_qty"/>
+                            <field name="available_qty"/>
+                            <field name="loaned_qty"/>
+                            <field name="state" widget="badge"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Description">
+                            <field name="description"/>
+                        </page>
+                        <page string="Loans">
+                            <field name="loan_ids">
+                                <tree>
+                                    <field name="reference"/>
+                                    <field name="member_id"/>
+                                    <field name="loan_date"/>
+                                    <field name="expected_return_date"/>
+                                    <field name="state" widget="badge"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="library_book_kanban" model="ir.ui.view">
+        <field name="name">library.book.kanban</field>
+        <field name="model">library.book</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="category_id">
+                <field name="name"/>
+                <field name="image_128"/>
+                <field name="state"/>
+                <field name="available_qty"/>
+                <field name="color"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_color_#{kanban_getcolor(record.color.raw_value)}
+                                           oe_kanban_global_click">
+                            <div class="o_kanban_image">
+                                <img t-att-src="kanban_image('library.book', 'image_128', record.id.raw_value)"
+                                     alt="Cover"/>
+                            </div>
+                            <div class="oe_kanban_details">
+                                <strong><field name="name"/></strong>
+                                <div><field name="author_ids" widget="many2many_tags"/></div>
+                                <div>
+                                    <span t-if="record.state.raw_value == 'available'"
+                                          class="badge bg-success">Available</span>
+                                    <span t-if="record.state.raw_value == 'low_stock'"
+                                          class="badge bg-warning">Low Stock</span>
+                                    <span t-if="record.state.raw_value == 'unavailable'"
+                                          class="badge bg-danger">Unavailable</span>
+                                </div>
+                                <div><field name="available_qty"/> available</div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="library_book_search" model="ir.ui.view">
+        <field name="name">library.book.search</field>
+        <field name="model">library.book</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="isbn"/>
+                <field name="author_ids"/>
+                <field name="category_id"/>
+                <separator/>
+                <filter name="available" string="Available"
+                        domain="[('state', '=', 'available')]"/>
+                <filter name="low_stock" string="Low Stock"
+                        domain="[('state', '=', 'low_stock')]"/>
+                <filter name="unavailable" string="Unavailable"
+                        domain="[('state', '=', 'unavailable')]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter name="group_category" string="Category"
+                            context="{'group_by': 'category_id'}"/>
+                    <filter name="group_language" string="Language"
+                            context="{'group_by': 'language'}"/>
+                    <filter name="group_state" string="Status"
+                            context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="library_book_action" model="ir.actions.act_window">
+        <field name="name">Books</field>
+        <field name="res_model">library.book</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="search_view_id" ref="library_book_search"/>
+        <field name="context">{'search_default_available': 1}</field>
+    </record>
+</odoo>

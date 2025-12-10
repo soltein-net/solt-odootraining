@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Member Sequence -->
+    <record id="seq_library_member" model="ir.sequence">
+        <field name="name">Library Member</field>
+        <field name="code">library.member</field>
+        <field name="prefix">MBR-</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- Loan Sequence -->
+    <record id="seq_library_loan" model="ir.sequence">
+        <field name="name">Library Loan</field>
+        <field name="code">library.loan</field>
+        <field name="prefix">LOAN-%(year)s-</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+</odoo>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="library_member_tree" model="ir.ui.view">
+        <field name="name">library.member.tree</field>
+        <field name="model">library.member</field>
+        <field name="arch" type="xml">
+            <tree decoration-muted="state == 'suspended'"
+                  decoration-danger="state == 'expired'">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="email"/>
+                <field name="membership_type" widget="badge"/>
+                <field name="active_loan_count"/>
+                <field name="pending_fees" sum="Total Fees"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'active'"
+                       decoration-warning="state == 'expired'"
+                       decoration-danger="state == 'suspended'"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="library_member_form" model="ir.ui.view">
+        <field name="name">library.member.form</field>
+        <field name="model">library.member</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_activate" type="object" string="Activate"
+                            class="btn-primary"
+                            invisible="state == 'active'"/>
+                    <button name="action_suspend" type="object" string="Suspend"
+                            class="btn-danger"
+                            invisible="state != 'active'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="active,suspended,expired"/>
+                </header>
+                <sheet>
+                    <field name="image_128" widget="image" class="oe_avatar"/>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Member Name"/></h1>
+                        <h3><field name="code" readonly="1"/></h3>
+                    </div>
+                    <group>
+                        <group string="Contact Information">
+                            <field name="email"/>
+                            <field name="phone"/>
+                            <field name="mobile"/>
+                        </group>
+                        <group string="Membership">
+                            <field name="membership_type"/>
+                            <field name="registration_date"/>
+                            <field name="expiration_date"/>
+                            <field name="max_loans"/>
+                            <field name="loan_days"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Statistics">
+                            <field name="active_loan_count"/>
+                            <field name="overdue_loan_count"/>
+                            <field name="pending_fees"/>
+                        </group>
+                        <group string="Address">
+                            <field name="street"/>
+                            <field name="city"/>
+                            <field name="country_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Loans">
+                            <field name="loan_ids">
+                                <tree decoration-danger="state == 'loaned' and days_overdue > 0">
+                                    <field name="reference"/>
+                                    <field name="book_id"/>
+                                    <field name="loan_date"/>
+                                    <field name="expected_return_date"/>
+                                    <field name="days_overdue"/>
+                                    <field name="late_fee"/>
+                                    <field name="state" widget="badge"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="library_member_action" model="ir.actions.act_window">
+        <field name="name">Members</field>
+        <field name="res_model">library.member</field>
+        <field name="view_mode">tree,form,kanban</field>
+    </record>
+</odoo>
