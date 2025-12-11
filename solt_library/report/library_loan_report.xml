@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
+    <!--Reporte de tipo PDF-->
     <record id="action_report_loan" model="ir.actions.report">
         <field name="name">Loan Receipt</field>
         <field name="model">library.loan</field>
@@ -9,4 +10,17 @@
         <field name="binding_model_id" ref="model_library_loan"/>
         <field name="binding_type">report</field>
     </record>
+
+    <!--Reporte de tipo Excel-->
+    <record id="action_report_loan_xlsx" model="ir.actions.report">
+        <field name="name">Loan Receipt XLSX</field>
+        <field name="model">library.loan</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">solt_library.report_loan_xlsx_template</field>
+        <field name="report_file">solt_library.report_loan_xlsx_template</field>
+        <field name="binding_model_id" ref="model_library_loan"/>
+        <field name="binding_type">report</field>
+        <field name="attachment_use" eval="False"/>
+    </record>
+
 </odoo>

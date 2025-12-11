@@ -3,6 +3,7 @@ from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 from datetime import date
 from dateutil.relativedelta import relativedelta
+import logging
 
 
 class LibraryMember(models.Model):
@@ -80,6 +81,12 @@ class LibraryMember(models.Model):
 
     notes = fields.Text('Internal Notes')
     active = fields.Boolean(default=True)
+
+    date_member_created = fields.Datetime(
+        'Member Created On',
+        store=True,
+        readonly=True
+    )
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -169,3 +176,50 @@ class LibraryMember(models.Model):
             ('membership_type', '!=', 'lifetime')
         ])
         expired.write({'state': 'expired'})
+
+    @api.model
+    def load(self, fields, data):
+        """
+        Override del método load para depurar y validar datos durante la importación.
+        Útil para identificar problemas con el campo membership_type.
+        """
+        _logger = logging.getLogger(__name__)
+
+        # Registrar información sobre la importación
+        _logger.info(f"=== Importación de Library Member ===")
+        _logger.info(f"Campos a importar: {fields}")
+        _logger.info(f"Cantidad de registros: {len(data)}")
+
+        # Si membership_type está en los campos a importar
+        if 'membership_type' in fields:
+            membership_idx = fields.index('membership_type')
+            valid_types = {'student', 'regular', 'premium', 'lifetime'}
+
+            for idx, row in enumerate(data, start=1):
+                membership_value = row[membership_idx] if len(row) > membership_idx else None
+
+                if membership_value:
+                    # Normalizar el valor (quitar espacios, minúsculas)
+                    normalized_value = str(membership_value).strip().lower()
+
+                    _logger.info(f"Fila {idx}: membership_type = '{membership_value}' -> '{normalized_value}'")
+
+                    # Validar si el valor es válido
+                    if normalized_value not in valid_types:
+                        _logger.warning(
+                            f"⚠️ Fila {idx}: Valor inválido '{membership_value}'. "
+                            f"Valores permitidos: {valid_types}"
+                        )
+
+                    # Corrección automática: reemplazar el valor normalizado
+                    row[membership_idx] = normalized_value
+
+        # Llamar al método original de Odoo
+        result = super(LibraryMember, self).load(fields, data)
+
+        _logger.info(f"Resultado: {result['ids']} registros creados/actualizados")
+        if result.get('messages'):
+            _logger.warning(f"Mensajes de importación: {result['messages']}")
+
+        return result
+

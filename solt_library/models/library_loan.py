@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
 
 class LibraryLoan(models.Model):
@@ -82,6 +82,7 @@ class LibraryLoan(models.Model):
     ], string='Status', default='draft', tracking=True)
 
     notes = fields.Text('Notes')
+
     user_id = fields.Many2one(
         'res.users',
         string='Librarian',
@@ -280,3 +281,49 @@ class LibraryLoan(models.Model):
                 body=f'🚨 Loan overdue by 3 days. Accumulated fee: ${loan.late_fee}',
                 partner_ids=[loan.member_id.partner_id.id]
             )
+
+
+    #funciones que extienden las funcionalidades del importador de datos
+    @api.model
+    def _convert_import_date(self, date_str, fields):
+        # Ejemplo: Extiende la conversión de fecha para aceptar otro formato
+        print('Converting date:', date_str)
+        print('Converting Fields:', fields)
+        if date_str:
+            try:
+                # Intenta el formato original
+                return super()._convert_import_date(date_str, fields)
+            except Exception:
+                try:
+                    # Nuevo formato admitido: yyyy/mm/dd
+                    return datetime.strptime(date_str, '%Y/%m/%d').date()
+                except Exception:
+                    return date_str
+        return date_str
+
+
+    @api.model
+    def _sanitize_import_reference(self, value, fields):
+        print('Sanitizing reference:', value)
+        print('Sanitizin Fields:', fields)
+        # Ejemplo: Añade un prefijo personalizado a la referencia importada
+        value = super()._sanitize_import_reference(value, fields)
+        if value:
+            return f'IMP-{value}'
+        return value
+
+    @api.model
+    def _validate_import_book(self, value, fields):
+        # Ejemplo: Permite buscar por ISBN además del nombre
+        print('Validating book:', value)
+        print('Validating Fields:', fields)
+        Book = self.env['library.book']
+        book = Book.search([('name', '=', value)], limit=1)
+        if not book:
+            book = Book.search([('isbn', '=', value)], limit=1)
+        if not book:
+            raise ValidationError(f'El libro "{value}" no existe en el catálogo.')
+        return book.id
+
+
+

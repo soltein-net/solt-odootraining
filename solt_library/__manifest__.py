@@ -15,7 +15,7 @@
     'author': 'Soltein SA de CV',
     'website': 'https://soltein.mx/',
     'license': 'LGPL-3',
-    'depends': ['base', 'mail', 'contacts'],
+    'depends': ['base', 'mail', 'contacts', 'report_xlsx', 'base_import'],
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',

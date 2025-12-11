@@ -137,3 +137,11 @@ class LibraryBook(models.Model):
             'domain': [('book_id', '=', self.id)],
             'context': {'default_book_id': self.id},
         }
+
+    #TODO crear una funcion apra agregar 10 paginas al libro al momento de importar los datos
+    @api.model
+    def create(self, vals):
+        if 'pages' in vals:
+            vals['pages'] += 10
+        return super(LibraryBook, self).create(vals)
+
