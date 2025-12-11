@@ -2,6 +2,8 @@
 from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
 from datetime import date, timedelta, datetime
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class LibraryLoan(models.Model):
@@ -287,8 +289,8 @@ class LibraryLoan(models.Model):
     @api.model
     def _convert_import_date(self, date_str, fields):
         # Ejemplo: Extiende la conversión de fecha para aceptar otro formato
-        print('Converting date:', date_str)
-        print('Converting Fields:', fields)
+        _logger.info('Converting date: %s', date_str)
+        _logger.info('Fields: %s', fields)
         if date_str:
             try:
                 # Intenta el formato original
@@ -304,8 +306,8 @@ class LibraryLoan(models.Model):
 
     @api.model
     def _sanitize_import_reference(self, value, fields):
-        print('Sanitizing reference:', value)
-        print('Sanitizin Fields:', fields)
+        _logger.info('Sanitizing reference: %s', value)
+        _logger.info('Fields: %s', fields)
         # Ejemplo: Añade un prefijo personalizado a la referencia importada
         value = super()._sanitize_import_reference(value, fields)
         if value:
@@ -315,8 +317,8 @@ class LibraryLoan(models.Model):
     @api.model
     def _validate_import_book(self, value, fields):
         # Ejemplo: Permite buscar por ISBN además del nombre
-        print('Validating book:', value)
-        print('Validating Fields:', fields)
+        _logger.info('Validating book: %s', value)
+        _logger.info('Fields: %s', fields)
         Book = self.env['library.book']
         book = Book.search([('name', '=', value)], limit=1)
         if not book:
