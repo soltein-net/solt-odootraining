@@ -2,11 +2,11 @@
 <odoo>
     <!--Reporte de tipo PDF-->
     <record id="action_report_loan" model="ir.actions.report">
-        <field name="name">Loan Receipt</field>
+        <field name="name">Loan Receipt (PDF)</field>
         <field name="model">library.loan</field>
         <field name="report_type">qweb-pdf</field>
-        <field name="report_name">library.report_loan_template</field>
-        <field name="report_file">library.report_loan_template</field>
+        <field name="report_name">solt_library.report_loan_template</field>
+        <field name="report_file">solt_library.report_loan_template</field>
         <field name="binding_model_id" ref="model_library_loan"/>
         <field name="binding_type">report</field>
     </record>

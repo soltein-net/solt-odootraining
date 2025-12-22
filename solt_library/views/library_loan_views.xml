@@ -41,6 +41,9 @@
                     <button name="action_cancel" type="object"
                             string="Cancel"
                             invisible="state != 'draft'"/>
+                    <button name="print_report_by_reference_xlsx" type="object"
+                            string="Report by Button(EXCEL)"/>
+
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,loaned,returned"/>
                 </header>

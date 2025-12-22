@@ -32,9 +32,12 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td t-field="doc.book_id.name"/>
-                                    <td t-field="doc.book_isbn"/>
-                                    <td t-field="doc.book_authors"/>
+                                    <td> <span t-field="doc.book_id.name"/> </td>
+                                    <td> <span t-field="doc.book_isbn"/> </td>
+                                    <td>
+                                        <t t-esc="', '.join(author.name for author in doc.book_id.author_ids)">
+                                        </t>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -64,5 +67,15 @@
                 </t>
             </t>
         </t>
+    </template>
+
+    <template inherit_id="solt_library.report_loan_template" id="inherit_report">
+        <xpath expr="//div[@class='page']" position="inside">
+            <div class="row mt-3">
+                <div class="col-12 text-center">
+                    <h1>Inherit Report</h1>
+                </div>
+            </div>
+        </xpath>
     </template>
 </odoo>

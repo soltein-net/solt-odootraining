@@ -327,5 +327,17 @@ class LibraryLoan(models.Model):
             raise ValidationError(f'El libro "{value}" no existe en el catálogo.')
         return book.id
 
+    def print_report_by_reference(self):
+        if not self.reference:
+            raise UserError(f'No se encontraron préstamos con la referencia "{self.reference}".')
+        return self.env.ref('solt_library.action_report_loan').report_action(self)
+
+    def print_report_by_reference_xlsx(self):
+        if not self.reference:
+            raise UserError(f'No se encontraron préstamos con la referencia "{self.reference}".')
+        return self.env.ref('solt_library.action_report_loan_xlsx').report_action(self)
+
+    def return_name_reference(self):
+        return self.name + ' - ' + self.reference
 
 
