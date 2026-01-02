@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="snippets" name="Course Snippets" inherit_id="website.snippets">
+            <xpath expr="//div[@id='snippet_effect']//div[hasclass('o_panel_body')]" position="inside">
+                <t t-snippet="website_solt_library.s_dynamic_snippet_books" string="Books"
+                   t-thumbnail="/website_sale/static/src/img/snippets_thumbs/s_dynamic_products.svg"/>
+            </xpath>
+        </template>
+    </data>
+</odoo>

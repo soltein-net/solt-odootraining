@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Filters for Dynamic Filter -->
+        <record id="dynamic_snippet_newest_books_filter" model="ir.filters">
+            <field name="name">Newest Books</field>
+            <field name="model_id">library.book</field>
+            <field name="user_id" eval="False"/>
+            <field name="domain">[('active', '=', True)]</field>
+            <field name="context">{}</field>
+            <field name="sort">["publication_date desc"]</field>
+            <field name="action_id" ref="website.action_website"/>
+        </record>
+        <record id="dynamic_snippet_most_available_books_filter" model="ir.filters">
+            <field name="name">Most Available</field>
+            <field name="model_id">library.book</field>
+            <field name="user_id" eval="False"/>
+            <field name="domain">[('available_qty', '!=', 0)]</field>
+            <field name="context">{}</field>
+            <field name="sort">["available_qty desc"]</field>
+            <field name="action_id" ref="website.action_website"/>
+        </record>
+        <!-- Dynamic Filter -->
+        <record id="dynamic_filter_newest_books" model="website.snippet.filter">
+            <field name="filter_id" ref="website_solt_library.dynamic_snippet_newest_books_filter"/>
+            <field name="field_names">display_name,isbn,pages,category_id</field>
+            <field name="limit" eval="16"/>
+            <field name="name">Newest Books</field>
+        </record>
+        <record id="dynamic_filter_most_available_books" model="website.snippet.filter">
+            <field name="filter_id" ref="website_solt_library.dynamic_snippet_most_available_books_filter"/>
+            <field name="field_names">display_name,isbn,pages,category_id</field>
+            <field name="limit" eval="16"/>
+            <field name="name">Most Available Books</field>
+        </record>
+        <!-- Templates -->
+        <template id="dynamic_filter_template_library_book_view_detail" name="Classic Card - Detailed">
+            <t t-foreach="records" t-as="data" data-number-of-elements="3"
+               data-thumb="/website_sale/static/src/img/snippets_options/product_view_detail.svg">
+                <t t-set="record" t-value="data['_record']" data-arrow-position="bottom"/>
+                <div class="o_carousel_product_card card h-100 w-100">
+                    <a class="o_carousel_product_img_link o_dynamic_product_hovered overflow-hidden" href="/">
+                        <img class="card-img-top o_img_product_square o_img_product_cover h-auto" loading="lazy"
+                             src="/website_solt_library/static/src/img/library_image_11.jpg"
+                             t-att-alt="record.display_name"/>
+                    </a>
+                    <div class="o_carousel_product_card_body card-body d-flex flex-column justify-content-between">
+                        <div class="card-title h5" t-field="record.display_name"/>
+                        <div class="card-text flex-grow-1 text-muted h6" t-field="record.description"/>
+                        <p class="lead" t-field="record.isbn"/>
+                    </div>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>

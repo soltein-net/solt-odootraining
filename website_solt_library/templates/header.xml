@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="template_header_course" name="Header Course" inherit_id="website.layout" active="False">
+            <xpath expr="//header//nav" position="replace">
+                <t t-call="website.navbar">
+                    <t t-set="_navbar_classes" t-valuef="d-none d-lg-block shadow-sm"/>
+                    <div id="o_main_nav" class="o_main_nav container d-flex flex-column">
+                        <div aria-label="Top" class="o_header_hide_on_scroll border-bottom o_border_contrast w-100">
+                            <div class="container d-flex justify-content-between flex-wrap w-100">
+                                <ul class="o_header_search_left_col navbar-nav flex-wrap">
+                                    <!-- Language Selector -->
+                                    <t t-call="website.placeholder_header_language_selector">
+                                        <t t-set="_div_classes" t-valuef="h-100 border-end o_border_contrast"/>
+                                        <t t-set="_btn_class"
+                                           t-valuef="o_navlink_background_hover btn-sm d-flex align-items-center h-100 rounded-0 p-2 text-reset"/>
+                                    </t>
+                                    <!-- Text element -->
+                                    <t t-call="website.placeholder_header_text_element">
+                                        <t t-set="_txt_elt_content" t-valuef="sentence"/>
+                                        <t t-set="_div_class"
+                                           t-valuef="d-flex align-items-center h-100 border-end p-2 text-muted o_border_contrast"/>
+                                    </t>
+                                </ul>
+                                <ul class="navbar-nav flex-wrap">
+                                    <!-- Social Links -->
+                                    <t t-call="website.placeholder_header_social_links">
+                                        <t t-set="_div_class"
+                                           t-valuef="d-flex align-items-center h-100 border-start px-1 o_border_contrast"/>
+                                    </t>
+                                    <!-- Sign In -->
+                                    <t t-call="portal.placeholder_user_sign_in">
+                                        <t t-set="_link_class"
+                                           t-valuef="o_navlink_background_hover btn btn-sm d-flex align-items-center h-100 rounded-0 border-0 border-start px-3 text-reset o_border_contrast"/>
+                                    </t>
+                                    <!-- User Dropdown -->
+                                    <t t-call="portal.user_dropdown">
+                                        <t t-set="_user_name" t-value="true"/>
+                                        <t t-set="_item_class" t-valuef="dropdown border-start o_border_contrast"/>
+                                        <t t-set="_link_class"
+                                           t-valuef="o_navlink_background_hover btn-sm d-flex align-items-center h-100 rounded-0 p-2 text-reset"/>
+                                        <t t-set="_dropdown_menu_class" t-valuef="dropdown-menu-end"/>
+                                    </t>
+                                </ul>
+                            </div>
+                        </div>
+                        <div aria-label="Bottom"
+                             class="container d-grid align-items-center w-100 py-2 w-100 o_grid_header_3_cols">
+                            <!-- Navbar -->
+                            <t t-call="website.navbar_nav">
+                                <t t-set="_nav_class" t-valuef="me-4"/>
+
+                                <!-- Menu -->
+                                <t t-foreach="website.menu_id.child_id" t-as="submenu">
+                                    <t t-call="website.submenu">
+                                        <t t-set="item_class" t-valuef="nav-item"/>
+                                        <t t-set="link_class" t-valuef="nav-link"/>
+                                    </t>
+                                </t>
+                            </t>
+                            <!-- Brand -->
+                            <t t-call="website.placeholder_header_brand">
+                                <t t-set="_link_class" t-valuef="mw-100 mx-auto"/>
+                            </t>
+                            <ul class="o_header_search_right_col navbar-nav align-items-center gap-2 ms-auto ps-3">
+                                <!-- Search bar -->
+                                <t t-call="website.placeholder_header_search_box"
+                                   t-nocache="The searchbox should not cache previous searches.">
+                                    <t t-set="_input_classes" t-valuef="rounded-start-pill ps-3 text-bg-light"/>
+                                    <t t-set="_submit_classes" t-valuef="rounded-end-pill pe-3 bg-o-color-3"/>
+                                </t>
+                                <!-- Call To Action -->
+                                <t t-call="website.placeholder_header_call_to_action"/>
+                            </ul>
+                        </div>
+                    </div>
+                </t>
+                <t t-call="website.template_header_mobile"/>
+            </xpath>
+        </template>
+        <template id="template_header_course_opt" inherit_id="website.snippet_options"
+                  name="Header Course Template - Option">
+            <xpath expr="//we-select[@data-variable='header-template']" position="inside">
+                <we-button title="Library"
+                           data-customize-website-views="website_solt_library.template_header_course"
+                           data-customize-website-variable="'library'"
+                           data-img="/website/static/src/img/snippets_options/header_template_default.svg"/>
+            </xpath>
+        </template>
+    </data>
+</odoo>
