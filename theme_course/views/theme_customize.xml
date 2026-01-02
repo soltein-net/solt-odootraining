@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!--
+        Theme Customization Options for Course Theme
+        These options appear in the Website Editor > Theme tab > Advanced section
+    -->
+
+    <!-- Custom Section Spacing Option -->
+    <template id="theme_course_custom_spacing" inherit_id="website.snippet_options"
+              name="Course Theme - Custom Section Spacing">
+        <!-- Add to Advanced Options Section -->
+        <xpath expr="//div[@data-selector='theme-advanced']" position="inside">
+            <we-checkbox data-name="use_custom_spacing_opt"
+                         string="Custom Section Spacing"
+                         data-customize-website-variable="false|true"
+                         data-variable="use-custom-spacing"
+                         data-no-preview="true"/>
+            <we-input string="Section Spacing"
+                      class="o_we_sublevel_1"
+                      data-dependencies="use_custom_spacing_opt"
+                      data-customize-website-variable="null"
+                      data-variable="custom-section-spacing"
+                      data-unit="px"
+                      data-save-unit="rem"/>
+        </xpath>
+    </template>
+</odoo>
