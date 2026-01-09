@@ -50,3 +50,32 @@ class LibraryAuthor(models.Model):
                     raise models.ValidationError(
                         'Death date cannot be earlier than birth date'
                     )
+
+    def get_popular_authors(self):
+        """
+        Retorna autores populares (con más de 3 libros)
+        Demuestra uso de filtered() y mapped()
+        """
+        # Obtener todos los autores
+        all_authors = self.search([])
+
+        # Filtrar autores con más de 3 libros
+        popular_authors = all_authors.filtered(lambda a: a.book_count >= 3)
+
+        # Mapear para obtener solo los nombres
+        author_names = popular_authors.mapped('name')
+
+        # Mostrar en log
+        import logging
+        _logger = logging.getLogger(__name__)
+        _logger.info(f"Autores populares: {author_names}")
+
+        # Retornar acción con los autores filtrados
+        return {
+            'name': 'Autores Populares (>3 libros)',
+            'type': 'ir.actions.act_window',
+            'res_model': 'library.author',
+            'view_mode': 'kanban,tree,form',
+            'domain': [('id', 'in', popular_authors.ids)],
+            'context': {'default_book_count': 3}
+        }

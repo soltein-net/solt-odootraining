@@ -94,6 +94,23 @@ class LibraryBook(models.Model):
             book.available_qty = book.total_qty - loaned
             _logger.info(f'Book {book.name}: Total={book.total_qty}, Loaned={loaned}, Available={book.available_qty}')
 
+    def get_available_books(self):
+        """Retorna todos los libros disponibles para préstamo"""
+        # Búsqueda con dominio
+        available_books = self.search([
+            ('available_qty', '>', 0),
+            ('state', '=', 'available')
+        ])
+        # Retornar acción para mostrar resultados
+        return {
+            'name': 'Libros Disponibles',
+            'type': 'ir.actions.act_window',
+            'res_model': 'library.book',
+            'view_mode': 'tree,form',
+            'domain': [('id', 'in', available_books.ids)],
+            'context': {'search_default_available': 1}
+        }
+
     @api.depends('available_qty', 'total_qty')
     def _compute_state(self):
         for book in self:

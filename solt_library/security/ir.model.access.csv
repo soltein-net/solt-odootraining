@@ -14,3 +14,7 @@ access_library_member_manager,library.member.manager,model_library_member,librar
 access_library_loan_user,library.loan.user,model_library_loan,library_group_user,1,0,0,0
 access_library_loan_librarian,library.loan.librarian,model_library_loan,library_group_librarian,1,1,1,0
 access_library_loan_manager,library.loan.manager,model_library_loan,library_group_manager,1,1,1,1
+
+
+access_library_book_reader,library.book.reader,model_library_book,library_group_reader,1,0,0,0
+access_library_author_reader,library.author.reader,model_library_author,library_group_reader,1,0,0,0
