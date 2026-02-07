@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
+import threading
+import time
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class LibraryLoan(models.Model):
@@ -82,6 +86,7 @@ class LibraryLoan(models.Model):
     ], string='Status', default='draft', tracking=True)
 
     notes = fields.Text('Notes')
+
     user_id = fields.Many2one(
         'res.users',
         string='Librarian',
@@ -301,3 +306,156 @@ class LibraryLoan(models.Model):
                 body=f'🚨 Loan overdue by 3 days. Accumulated fee: ${loan.late_fee}',
                 partner_ids=[loan.member_id.partner_id.id]
             )
+
+
+    #funciones que extienden las funcionalidades del importador de datos
+    @api.model
+    def _convert_import_date(self, date_str, fields):
+        # Ejemplo: Extiende la conversión de fecha para aceptar otro formato
+        _logger.info('Converting date: %s', date_str)
+        _logger.info('Fields: %s', fields)
+        if date_str:
+            try:
+                # Intenta el formato original
+                return super()._convert_import_date(date_str, fields)
+            except Exception:
+                try:
+                    # Nuevo formato admitido: yyyy/mm/dd
+                    return datetime.strptime(date_str, '%Y/%m/%d').date()
+                except Exception:
+                    return date_str
+        return date_str
+
+
+    @api.model
+    def _sanitize_import_reference(self, value, fields):
+        _logger.info('Sanitizing reference: %s', value)
+        _logger.info('Fields: %s', fields)
+        # Ejemplo: Añade un prefijo personalizado a la referencia importada
+        value = super()._sanitize_import_reference(value, fields)
+        if value:
+            return f'IMP-{value}'
+        return value
+
+    @api.model
+    def _validate_import_book(self, value, fields):
+        # Ejemplo: Permite buscar por ISBN además del nombre
+        _logger.info('Validating book: %s', value)
+        _logger.info('Fields: %s', fields)
+        Book = self.env['library.book']
+        book = Book.search([('name', '=', value)], limit=1)
+        if not book:
+            book = Book.search([('isbn', '=', value)], limit=1)
+        if not book:
+            raise ValidationError(f'El libro "{value}" no existe en el catálogo.')
+        return book.id
+
+    def print_report_by_reference(self):
+        if not self.reference:
+            raise UserError(f'No se encontraron préstamos con la referencia "{self.reference}".')
+        return self.env.ref('solt_library.action_report_loan').report_action(self)
+
+    def print_report_by_reference_xlsx(self):
+        if not self.reference:
+            raise UserError(f'No se encontraron préstamos con la referencia "{self.reference}".')
+        return self.env.ref('solt_library.action_report_loan_xlsx').report_action(self)
+
+    def return_name_reference(self):
+        return self.name + ' - ' + self.reference
+
+    def _send_notification_email(self, loan_ids):
+        """
+        Método privado que se ejecutará en un hilo separado.
+        Simula el envío de correos electrónicos de recordatorio.
+
+        IMPORTANTE: Este método NO debe usar self directamente porque
+        self no es thread-safe en Odoo. Usamos loan_ids para recrear
+        el recordset en el nuevo cursor.
+        """
+        try:
+            # Crear un nuevo cursor para este hilo (requerido en Odoo)
+            with self.env.registry.cursor() as new_cr:
+                # Crear un nuevo environment con el nuevo cursor
+                new_env = api.Environment(new_cr, self.env.uid, self.env.context)
+
+                # Obtener los préstamos con el nuevo environment
+                loans = new_env['library.loan'].browse(loan_ids)
+
+                for loan in loans:
+                    # Simular tiempo de envío de correo
+                    time.sleep(15)
+
+                    _logger.info(f"📧 Enviando correo a {loan.member_id.name} por el libro {loan.book_id.name}")
+
+                    # Aquí iría el código real de envío de correo
+                    loan.message_post(
+                        body=f'📬 Recordatorio: Su préstamo del libro '
+                             f'"{loan.book_id.name}" está vencido desde '
+                             f'{loan.expected_return_date}. '
+                             f'Por favor, devuélvalo lo antes posible.',
+                        partner_ids=[loan.member_id.partner_id.id]
+                    )
+
+                # Commit en el nuevo cursor
+                new_cr.commit()
+
+                _logger.info("✅ Todas las notificaciones fueron enviadas exitosamente")
+
+        except Exception as e:
+            _logger.error(f"❌ Error en el hilo de notificaciones: {str(e)}")
+
+    def action_send_overdue_notifications(self):
+        """
+        Botón que inicia el envío de notificaciones en un hilo separado.
+        La interfaz no se bloqueará mientras se envían los correos.
+        """
+        # Buscar préstamos vencidos sin notificación
+        overdue_loans = self.search([
+            ('expected_return_date', '<', fields.Date.today()),
+            ('state', '=', 'loaned'),
+        ])
+
+        if not overdue_loans:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Sin préstamos vencidos',
+                    'message': 'No hay préstamos vencidos pendientes de notificar',
+                    'type': 'info',
+                    'sticky': False,
+                }
+            }
+
+        # Guardar los IDs (thread-safe)[1,2,3,...]
+        loan_ids = overdue_loans.ids
+
+        # Crear y arrancar el hilo
+        thread = threading.Thread(
+            target=self._send_notification_email,
+            args=(loan_ids,),
+            name='LibraryLoanNotifications'
+        )
+        thread.daemon = True  # El hilo se cerrará cuando Odoo se cierre
+        thread.start()
+
+        _logger.info(f"🚀 Hilo de notificaciones iniciado para {len(loan_ids)} préstamos")
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': '¡Proceso iniciado!',
+                'message': f'Se están enviando {len(loan_ids)} notificaciones en segundo plano',
+                'type': 'success',
+                'sticky': False,
+            }
+        }
+
+
+    def conectar_api_externa(self):
+        # Obtener configuraciones
+        params = self.env['ir.config_parameter'].sudo()
+        api_url = params.get_param('solt_library.api_url' , 'https://api.example.com')
+        params.set_param('solt_library.api_url', 'https://www.api-actualizada.com')
+        return api_url

@@ -4,3 +4,6 @@ from . import library_book
 from . import library_category
 from . import library_member
 from . import library_loan
+from . import library_loan_xlxs_report
+from . import base_import_import
+from . import res_config_setttings
