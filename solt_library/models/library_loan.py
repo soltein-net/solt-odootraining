@@ -89,6 +89,13 @@ class LibraryLoan(models.Model):
         tracking=True
     )
 
+    days_remaining = fields.Integer(
+        string='Días Restantes',
+        compute='_compute_days_remaining',
+        store=True,
+        help='Días restantes hasta la fecha de devolución esperada'
+    )
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
@@ -97,6 +104,20 @@ class LibraryLoan(models.Model):
                     'library.loan'
                 ) or 'New'
         return super().create(vals_list)
+
+    @api.depends('expected_return_date', 'state')
+    def _compute_days_remaining(self):
+        """Calcula los días restantes para la devolución"""
+        today = date.today()
+
+        for loan in self:
+            if loan.state in ['returned', 'cancelled']:
+                loan.days_remaining = 0
+            elif loan.expected_return_date:
+                delta = loan.expected_return_date - today
+                loan.days_remaining = delta.days
+            else:
+                loan.days_remaining = 0
 
     @api.depends('book_id.author_ids')
     def _compute_book_authors(self):

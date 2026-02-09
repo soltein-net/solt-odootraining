@@ -6,6 +6,13 @@
         <field name="arch" type="xml">
             <tree decoration-danger="state == 'unavailable'"
                   decoration-warning="state == 'low_stock'">
+                <header>
+                <button name="get_available_books"
+                        string="Ver Disponibles"
+                        type="object"
+                        class="btn-primary"/>
+            </header>
+
                 <field name="name"/>
                 <field name="isbn"/>
                 <field name="author_ids" widget="many2many_tags"/>

@@ -21,6 +21,8 @@
         'security/ir.model.access.csv',
         'data/library_sequence.xml',
         'data/library_cron.xml',
+        'data/library_demo.xml',
+
         'views/library_category_views.xml',
         'views/library_author_views.xml',
         'views/library_book_views.xml',

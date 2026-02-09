@@ -5,6 +5,12 @@
         <field name="description">Library Management</field>
         <field name="sequence">100</field>
     </record>
+      <!-- NUEVO: Grupo Lector -->
+    <record id="library_group_reader" model="res.groups">
+        <field name="name">Lector</field>
+        <field name="category_id" ref="module_category_library"/>
+        <field name="comment">Puede consultar libros y autores sin modificar nada</field>
+    </record>
 
     <!-- User Group -->
     <record id="library_group_user" model="res.groups">

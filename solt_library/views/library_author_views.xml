@@ -5,6 +5,12 @@
         <field name="model">library.author</field>
         <field name="arch" type="xml">
             <tree>
+                <header>
+                <button name="get_popular_authors"
+                        string="Ver Autores Populares"
+                        type="object"
+                        class="btn-success"/>
+            </header>
                 <field name="name"/>
                 <field name="nationality"/>
                 <field name="book_count"/>
