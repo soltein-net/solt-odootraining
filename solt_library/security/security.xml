@@ -35,6 +35,28 @@
     </record>
 
     <!-- Record Rules -->
+     <record id="library_member_portal_rule" model="ir.rule">
+        <field name="name">Members: Portal users sees only their own member</field>
+        <field name="model_id" ref="model_library_member"/>
+        <field name="domain_force">[('partner_id', '=', user.partner_id.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="library_loan_portal_rule" model="ir.rule">
+        <field name="name">Loans: Portal users sees only their own and create new loans</field>
+        <field name="model_id" ref="model_library_loan"/>
+        <field name="domain_force">[('member_id.partner_id', '=', user.partner_id.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
     <record id="library_loan_user_rule" model="ir.rule">
         <field name="name">Loans: User sees only their own</field>
         <field name="model_id" ref="model_library_loan"/>
