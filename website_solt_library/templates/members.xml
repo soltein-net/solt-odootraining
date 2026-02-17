@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="members_register" name="Members register">
+            <t t-call="website.layout">
+                <section class="s_members_register pb64 pt64">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12" t-if="error">
+                                <div class="alert alert-danger" role="alert">
+                                    <t t-out="error"/>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <form action="/registro" method="post" class="border p-4 rounded">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <div class="mb-3">
+                                        <label for="user-email" class="form-label">Correo</label>
+                                        <input type="email" class="form-control" id="user-email" aria-describedby="emailHelp" name="user-email"/>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="user-password" class="form-label">Contraseña</label>
+                                        <input type="password" class="form-control" id="user-password" name="user-password"/>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="user-member-type" class="form-label">Tipo de miembro</label>
+                                        <select class="form-select" aria-label="Default select example" name="user-member-type" id="user-member-type">
+                                            <option value="student">Estudiante</option>
+                                            <option value="regular">Regular</option>
+                                            <option value="premium">Premium</option>
+                                            <option value="lifetime">Lifetime</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Registrarse</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </t>
+        </template>
+    </data>
+</odoo>

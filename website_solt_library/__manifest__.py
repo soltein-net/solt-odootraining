@@ -10,10 +10,13 @@
     'depends': ['website', 'solt_library'],
     'data': [
         'data/snippet-books-data.xml',
+        'views/library_book.xml',
         'templates/header.xml',
         'templates/footer.xml',
         'templates/snippets/s_synamic_snippet_books.xml',
-        'templates/snippets.xml'
+        'templates/snippets.xml',
+        'templates/members.xml',
+        'templates/books.xml',
     ],
     'assets': {
         'web.assets_frontend': [

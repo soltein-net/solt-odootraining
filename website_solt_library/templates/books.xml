@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="books_list" name="Books List">
+        <t t-call="website.layout">
+            <section class="s_books_list pt64 pb64">
+                <div class="container">
+                    <dov class="row">
+                        <div class="col-12">
+                            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                                <div class="container-fluid">
+                                    <a class="navbar-brand" href="#">Libreria</a>
+                                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                                    <span class="navbar-toggler-icon"></span>
+                                    </button>
+                                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                Categorias
+                                            </a>
+                                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                                <li t-foreach="categories" t-as="category">
+                                                    <a t-attf-class="dropdown-item {{'active' if selected_category == category.id else ''}}" t-attf-href="/libros?category_id=#{category.id}"><t t-out="category.name"/></a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="nav_link" t-if="search_query or selected_category">
+                                            <a class="nav-link" href="/libros">Limpiar filtros</a>
+                                        </li>
+                                    </ul>
+                                    <form class="d-flex" method="get" action="/libros">
+                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                        <input class="form-control me-2" t-att-value="search_query" name="book-name" id="book-name" type="search" placeholder="Buscar libros" aria-label="Buscar"/>
+                                        <button class="btn btn-outline-success" type="submit">Buscar</button>
+                                    </form>
+                                    </div>
+                                </div>
+                            </nav>
+                        </div>
+                        <div class="col-12 mt-3" t-if="success">
+                            <div class="alert alert-success" role="alert">
+                                <t t-out="success"/>
+                            </div>
+                        </div>
+                        <div class="col-12 mt-3" t-if="error">
+                            <div class="alert alert-danger" role="alert">
+                                <t t-out="error"/>
+                            </div>
+                        </div>
+                        <div class="col-12 mt-3" t-if="not books">
+                            <div class="alert alert-warning" role="alert">
+                                No tenemos libros para mostrar.
+                            </div>
+                        </div>
+                        <t t-foreach="books" t-as="book">
+                            <div class="col-12 col-md-6 col-lg-3 mt-3">
+                                <div class="card">
+                                    <img t-attf-src="/web/image/library.book/{{book.id}}/image_1920" class="card-img-top" t-att-alt="book.name"/>
+                                    <div class="card-body">
+                                        <h5 class="card-title" t-out="book.name">Nombre del libro</h5>
+                                        <div class="d-flex flex-wrap gap-2 align-items-center">
+                                            <a t-att-href="book.website_url" class="btn btn-primary">Ver mas</a>
+                                            <a t-attf-href="/prestamos/create/{{book.id}}" class="btn btn-primary" t-if="book.available_qty &gt; 0">Solicitar prestamo</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>   
+                        </t>
+                    </dov>
+                </div>
+            </section>
+        </t>
+    </template>
+</odoo>
