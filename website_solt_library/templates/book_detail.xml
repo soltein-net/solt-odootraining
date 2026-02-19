@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="book_detail" name="Book Detail">
+        <t t-set="body_classname" t-value="'o_wslides_body'"/>
+        <t t-call="website.layout">
+            <div id="wrap" class="wrap o_wslides_wrap">
+                <!-- Breadcrumb -->
+                <div class="container mt-3">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/">Home</a></li>
+                            <li class="breadcrumb-item"><a href="/libros">Books</a></li>
+                            <li class="breadcrumb-item active" aria-current="page" t-out="book.name"/>
+                        </ol>
+                    </nav>
+                </div>
+
+                <!-- Book Detail Content -->
+                <div class="container py-4">
+                    <div class="row g-4">
+                        <!-- Book Image Column -->
+                        <div class="col-12 col-md-4">
+                            <div class="card border-0 shadow-sm">
+                                <div class="o_book_image_container rounded-top" style="height: 380px;">
+                                    <img t-attf-src="/web/image/library.book/#{book.id}/image_1920"
+                                         t-att-alt="book.name"
+                                         class="o_book_card_image rounded-top"/>
+                                </div>
+                                <div class="card-body text-center">
+                                    <!-- Availability Badge -->
+                                    <span t-if="book.state == 'available'" class="badge bg-success fs-6 px-3 py-2">
+                                        <i class="fa fa-check-circle me-1"/> Available
+                                    </span>
+                                    <span t-elif="book.state == 'low_stock'" class="badge bg-warning text-dark fs-6 px-3 py-2">
+                                        <i class="fa fa-exclamation-triangle me-1"/> Low Stock
+                                    </span>
+                                    <span t-else="" class="badge bg-danger fs-6 px-3 py-2">
+                                        <i class="fa fa-times-circle me-1"/> Unavailable
+                                    </span>
+                                    <!-- Loan Button -->
+                                    <div class="mt-3" t-if="book.state != 'unavailable'">
+                                        <a t-att-href="'/libros/loan/%d' % book.id"
+                                           class="btn btn-primary w-100 d-flex justify-content-center align-items-center gap-2">
+                                            <i class="fa fa-book"/> Request Loan
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Book Info Column -->
+                        <div class="col-12 col-md-8">
+                            <!-- Title and Category -->
+                            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                                <span class="badge bg-primary rounded-pill px-3 py-2"
+                                      t-out="book.category_id.display_name"/>
+                                <span t-if="not book.is_published" class="badge bg-danger rounded-pill px-3 py-2">
+                                    Unpublished
+                                </span>
+                            </div>
+                            <h1 class="fw-bolder mb-1" t-out="book.name"/>
+
+                            <!-- Authors -->
+                            <div class="mb-3 d-flex flex-wrap align-items-center gap-1">
+                                <span class="text-muted">by</span>
+                                <t t-foreach="book.author_ids" t-as="author">
+                                    <span class="badge text-bg-secondary" t-out="author.name"/>
+                                </t>
+                            </div>
+
+                            <!-- Publication Metadata -->
+                            <div class="row g-3 mb-4">
+                                <div class="col-6 col-sm-3" t-if="book.publication_date">
+                                    <div class="border rounded p-3 text-center h-100">
+                                        <small class="text-uppercase text-[10px] fw-bolder text-muted d-block mb-1">Year</small>
+                                        <span class="fw-bold" t-out="book.publication_date.year"/>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-sm-3" t-if="book.pages">
+                                    <div class="border rounded p-3 text-center h-100">
+                                        <small class="text-uppercase text-[10px] fw-bolder text-muted d-block mb-1">Pages</small>
+                                        <span class="fw-bold" t-field="book.pages"/>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-sm-3" t-if="book.language">
+                                    <div class="border rounded p-3 text-center h-100">
+                                        <small class="text-uppercase text-[10px] fw-bolder text-muted d-block mb-1">Language</small>
+                                        <span class="fw-bold" t-field="book.language"/>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-sm-3">
+                                    <div class="border rounded p-3 text-center h-100">
+                                        <small class="text-uppercase text-[10px] fw-bolder text-muted d-block mb-1">Copies</small>
+                                        <span class="fw-bold">
+                                            <t t-out="book.available_qty"/> / <t t-out="book.total_qty"/>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ISBN and Publisher -->
+                            <div class="row g-3 mb-4" t-if="book.isbn or book.publisher">
+                                <div class="col-12 col-sm-6" t-if="book.isbn">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="fa fa-barcode text-muted"/>
+                                        <div>
+                                            <small class="text-muted d-block">ISBN</small>
+                                            <span class="fw-bold" t-out="book.isbn"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-6" t-if="book.publisher">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="fa fa-building text-muted"/>
+                                        <div>
+                                            <small class="text-muted d-block">Publisher</small>
+                                            <span class="fw-bold" t-out="book.publisher"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Description -->
+                            <div t-if="book.description" class="mb-4">
+                                <h5 class="fw-bold border-bottom pb-2 mb-3">Description</h5>
+                                <p class="text-muted lh-lg" t-field="book.description"/>
+                            </div>
+
+                            <!-- Authors Detail Section -->
+                            <div t-if="book.author_ids" class="mb-4">
+                                <h5 class="fw-bold border-bottom pb-2 mb-3">About the Authors</h5>
+                                <t t-foreach="book.author_ids" t-as="author">
+                                    <div class="d-flex gap-3 mb-3 p-3 bg-light rounded">
+                                        <img t-attf-src="/web/image/library.author/#{author.id}/avatar_128"
+                                             t-att-alt="author.name"
+                                             class="rounded-circle"
+                                             style="width: 64px; height: 64px; object-fit: cover;"/>
+                                        <div>
+                                            <h6 class="fw-bold mb-1" t-out="author.name"/>
+                                            <small class="text-muted" t-if="author.nationality" t-out="author.nationality"/>
+                                            <p t-if="author.biography" class="mb-0 mt-1 small text-muted"
+                                               t-out="author.biography"/>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Back to list -->
+                    <div class="mt-4">
+                        <a href="/libros" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2">
+                            <i class="oi oi-chevron-left"/> Back to Books
+                        </a>
+                    </div>
+                </div>
+
+                <t t-call="website_solt_library.books_footer"/>
+            </div>
+        </t>
+    </template>
+</odoo>

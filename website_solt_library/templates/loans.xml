@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_my_home_loan" name="My Account Loans" customize_show="True"
+              inherit_id="portal.portal_my_home" priority="23">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <t t-set="portal_client_category_enable" t-value="True"/>
+        </xpath>
+        <div id="portal_client_category" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="icon" t-value="'/website_solt_library/static/src/img/books.svg'"/>
+                <t t-set="title">My Loans</t>
+                <t t-set="text">Keep track of your Loans</t>
+                <t t-set="url" t-value="'/my/loans'"/>
+                <t t-set="placeholder_count" t-value="'loans_count'"/>
+            </t>
+        </div>
+    </template>
+    <template id="portal_my_loans_menu" name="Portal layout: Loans"
+              inherit_id="portal.portal_breadcrumbs">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <li t-if="page_name in ['all_loans']"
+                t-attf-class="breadcrumb-item #{'active ' if not maintenance_request else ''}">
+                <a t-if="loan" href="/my/loans">Loans</a>
+                <span t-else="0">Loans</span>
+            </li>
+            <t t-elif="maintenance_request and page_name == 'loan'">
+                <li class="breadcrumb-item">
+                    <a href="/my/loans">Loans</a>
+                </li>
+                <li class="breadcrumb-item active">
+                    <span t-out="maintenance_request.reference"/>
+                </li>
+            </t>
+        </xpath>
+    </template>
+    <template id="portal_maintenance_request_card" name="Portal Maintenance Request Card">
+        <div t-attf-class="card border shadow-none border card-maintenance-request border-top-5"
+             t-attf-id="card-#{mr.id}">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-start mb-3 flex-column flex-sm-row">
+                    <div class="flex-grow-1">
+                        <t t-set="responsible" t-value="mr.member_id.partner_id"/>
+                        <div class="d-flex gap-2" t-if="responsible">
+                            <t t-call="website_common.avatar_group">
+                                <t t-set="partners" t-value="responsible"/>
+                                <t t-set="size_class" t-valuef="sm"/>
+                                <t t-set="tooltip_title" t-value="responsible.name"/>
+                            </t>
+                            <div class="d-flex flex-column">
+                                <p class="fw-bold font-size-14 mb-0 text-truncate text-wrap">Member</p>
+                                <p class="font-size-14 mb-0 text-truncate text-wrap"
+                                   t-field="responsible.name"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-shrink-0 d-flex flex-column">
+                        <small>Process Status:</small>
+                        <div class="badge badge-primary-subtle font-size-12"
+                             t-field="mr.state">process status</div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <h5 class="font-size-15 mb-1 text-truncate">
+                            <a t-attf-href="{{mr.website_url}}?{{keep_query()}}" class="stretched-link">
+                                <span t-field="mr.reference"/>
+                            </a>
+                        </h5>
+                    </div>
+                    <div class="col-12">
+                        <div class="w-100 d-flex justify-content-between align-items-center gap-2 mb-2 flex-wrap">
+                            <div class="d-flex align-items-center">
+                                <div class="d-flex flex-column">
+                                    <small class="fw-bold font-size-13">Request date</small>
+                                    <small class="font-size-13" t-field="mr.loan_date"
+                                           t-options="{'widget': 'date'}">-</small>
+                                </div>
+                                <i class="fa fa-calendar mx-2"/>
+                                <div class="d-flex flex-column">
+                                    <small class="fw-bold font-size-13">Schedule date</small>
+                                    <small class="font-size-13" t-field="mr.expected_return_date"
+                                           t-options="{'widget': 'date'}">-</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    <template id="portal_maintenance_requests_kanban" name="Portal Maintenance Requests Kanban">
+        <div class="maintenance-requests-board" data-readonly="true">
+            <t t-if="groupby != 'none'">
+                <t t-foreach="grouped_maintenance_requests" t-as="maintenance_requests">
+                    <t t-set="field_name" t-value="groupby_mapping[groupby]"/>
+                    <t t-set="header_id_name" t-value="stage_name(maintenance_requests[0], field_name, request.env)"/>
+                    <div class="maintenance-request-list" t-attf-id="maintenance-request-list-#{header_id_name[0]}"
+                         t-att-data-group="field_name" t-att-data-value="header_id_name[0]">
+                        <div class="card bg-light shadow-none h-100" t-attf-id="card-#{header_id_name[0]}">
+                            <div class="card-header bg-transparent border-bottom d-flex align-items-start">
+                                <div class="flex-grow-1">
+                                    <h4 class="card-title mb-0">
+                                        <t t-out="header_id_name[1]"/>
+                                        <span class="ml-1 text-muted slip-count">(<t t-out="len(maintenance_requests)"/>
+                                            )</span>
+                                    </h4>
+                                </div>
+                                <div class="flex-shrink-0"/>
+                            </div>
+                            <div>
+                                <div class="sliplist-content p-3 simplebar-scrollable-y" data-simplebar="1">
+                                    <div t-attf-id="column-task-#{header_id_name[0]}" class="slips column-slip">
+                                        <t t-call="website_solt_library.portal_maintenance_request_card"
+                                           t-foreach="maintenance_requests" t-as="mr"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+            <t t-else="0">
+                <div class="row w-100">
+                    <t t-foreach="grouped_maintenance_requests" t-as="maintenance_requests">
+                        <div class="col-12 col-md-6 col-lg-4 col-xl-3" t-foreach="maintenance_requests" t-as="mr"
+                             t-key="mr.id">
+                            <t t-call="website_solt_library.portal_maintenance_request_card"/>
+                        </div>
+                    </t>
+                </div>
+            </t>
+        </div>
+        <div t-if="pager" class="o_portal_pager d-flex justify-content-center my-3">
+            <t t-call="portal.pager"/>
+        </div>
+    </template>
+    <template id="portal_maintenance_requests_list" name="Portal Maintenance Requests List">
+        <t t-if="grouped_maintenance_requests">
+            <t t-call="portal.portal_table">
+                <thead>
+                    <tr>
+                        <t t-set="group_by_in_header_list" t-value="[]"/>
+                        <t t-set="number_of_header" t-value="3"/>
+                        <t t-set="grouped_maintenance_requests_colspan" t-value="number_of_header"/>
+                        <th>Reference</th>
+                        <th>Book</th>
+                        <th>Loan Date</th>
+                        <th>Expected Return Date</th>
+                    </tr>
+                </thead>
+                <t t-foreach="grouped_maintenance_requests" t-as="maintenance_requests">
+                    <tbody t-if="maintenance_requests">
+                        <tr t-if="not groupby == 'none'" class="table-light">
+                            <t t-set="first_element" t-value="maintenance_requests[0]"/>
+                            <th t-if="groupby_type in ['date']" t-attf-colspan="{{grouped_maintenance_requests_colspan}}">
+                                <div t-attf-name="{{groupby}}_name" class="d-flex w-100 align-items-center">
+                                    <span t-if="first_element[groupby_mapping[groupby]]"
+                                          t-out="first_element[groupby_mapping[groupby]]"
+                                          t-options="{'widget': 'date'}" class="text-truncate"/>
+                                    <span t-else="">Not Assigned</span>
+                                </div>
+                            </th>
+                            <th t-elif="groupby_type in ['datetime']"
+                                t-attf-colspan="{{grouped_maintenance_requests_colspan}}">
+                                <div t-attf-name="{{groupby}}_name" class="d-flex w-100 align-items-center">
+                                    <span t-if="first_element[groupby_mapping[groupby]]"
+                                          t-out="first_element[groupby_mapping[groupby]]"
+                                          t-options="{'widget': 'datetime'}" class="text-truncate"/>
+                                    <span t-else="">Not Assigned</span>
+                                </div>
+                            </th>
+                            <th t-elif="groupby_type in ['selection']"
+                                t-attf-colspan="{{grouped_maintenance_requests_colspan}}">
+                                <div t-attf-name="{{groupby}}_name" class="d-flex w-100 align-items-center">
+                                    <t t-set="selection_dict"
+                                       t-value="dict(first_element._fields[groupby_mapping[groupby]]._description_selection(request.env))"/>
+                                    <span t-if="first_element[groupby_mapping[groupby]]"
+                                          t-out="selection_dict.get(first_element[groupby_mapping[groupby]], first_element[groupby_mapping[groupby]])"
+                                          class="text-truncate"/>
+                                    <span t-else="">Not Assigned</span>
+                                </div>
+                            </th>
+                            <th t-elif="groupby_type in ['many2many', 'one2many']"
+                                t-attf-colspan="{{grouped_maintenance_requests_colspan}}">
+                                <div t-attf-name="{{groupby}}_name" class="d-flex w-100 align-items-center">
+                                    <span t-if="first_element[groupby_mapping[groupby]]"
+                                          t-out="', '.join(first_element[groupby_mapping[groupby]].mapped('name'))"
+                                          class="text-truncate"/>
+                                    <span t-else="">Not Assigned</span>
+                                </div>
+                            </th>
+                            <th t-elif="groupby_type in ['many2one']"
+                                t-attf-colspan="{{grouped_maintenance_requests_colspan}}">
+                                <div t-attf-name="{{groupby}}_name" class="d-flex w-100 align-items-center">
+                                    <span t-if="first_element[groupby_mapping[groupby]]"
+                                          t-out="first_element[groupby_mapping[groupby]].name"
+                                          class="text-truncate"/>
+                                    <span t-else="">Not Assigned</span>
+                                </div>
+                            </th>
+                            <th t-else="0" t-attf-colspan="{{grouped_maintenance_requests_colspan}}">
+                                <div t-attf-name="{{groupby}}_name" class="d-flex w-100 align-items-center">
+                                    <span t-if="first_element[groupby_mapping[groupby]]"
+                                          t-out="first_element[groupby_mapping[groupby]]"
+                                          class="text-truncate"/>
+                                    <span t-else="">Not Assigned</span>
+                                </div>
+                            </th>
+                        </tr>
+                    </tbody>
+                    <tbody t-if="maintenance_requests">
+                        <t t-foreach="maintenance_requests" t-as="maintenance_request">
+                            <tr>
+                                <td>
+                                    <a t-attf-href="{{maintenance_request.website_url}}{{ keep_the_url(url='') }}">
+                                        <span t-att-title="maintenance_request.reference" t-field="maintenance_request.reference">
+                                            Reference
+                                        </span>
+                                    </a>
+                                </td>
+
+                                <td>
+                                    <span title="Book" t-field="maintenance_request.book_id"/>
+                                </td>
+                                <td>
+                                    <span title="Loan Date" t-field="maintenance_request.loan_date"
+                                        t-options="{'widget': 'date'}"/>
+                                </td>
+                                <td>
+                                    <span title="Expected Return Date" t-field="maintenance_request.expected_return_date"
+                                         t-options="{'widget': 'date'}"/>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </t>
+            </t>
+        </t>
+    </template>
+    <template id="portal_my_loans" name="Portal my Loans">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-set="extra_args" t-value="{}"/>
+            <t t-set="display_at_top"
+               t-value="request.env['ir.config_parameter'].sudo().get_param('website_common.display_search_bar_at_top')"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Loans</t>
+                <t t-call="website_common.view_type_selector">
+                    <t t-set="list_url" t-value="keep_the_url(layout='list')"/>
+                    <t t-set="grid_url" t-value="keep_the_url(layout='grid')"/>
+                </t>
+            </t>
+            <div class="row">
+                <div class="col-12">
+                    <t t-set="partner" t-value="request.env.user.partner_id"/>
+                    <div t-attf-class="card mb-3 card-#{partner.id}">
+                        <div class="card-body pb-0">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-shrink-0">
+                                            <t t-call="website_common.avatar" t-if="partner">
+                                                <t t-set="p" t-value="partner"/>
+                                                <t t-set="image_class" t-value="'image_128'"/>
+                                                <t t-set="round_class" t-value="'rounded'"/>
+                                                <t t-set="size_class" t-valuef="md"/>
+                                                <t t-set="extra_classes"
+                                                   t-valuef="bg-primary-subtle text-primary font-size-18"/>
+                                            </t>
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <div class="text-muted">
+                                                <h5 class="font-size-16 mb-1" t-out="partner.display_name">partner
+                                                    name</h5>
+                                                <p class="mb-0" t-out="'{0}'.format(request.env.user.login)">
+                                                    @username</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-auto text-end"/>
+                            </div>
+                            <div class="mt-3">
+                                <ul class="nav nav-tabs-custom overview-tabs">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" t-attf-href="{{keep_the_url()}}">Loans</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div t-attf-class="card overflow-visible mb-3 card-info-#{partner.id}">
+                        <div class="card-body pb-5">
+                            <div class="d-flex align-items-center mb-3 gap-3">
+                                <h5 class="card-title mb-0" t-out="additional_title">Loans</h5>
+                            </div>
+                            <t t-call="website_common.btn_group_portal_searchbar" t-if="not display_at_top">
+                                <t t-set="extra_class" t-value="'w-100 mb-2 bottom-side'"/>
+                                <t t-call="website_common.view_type_selector">
+                                    <t t-set="list_url" t-value="keep_the_url(layout='list')"/>
+                                    <t t-set="grid_url" t-value="keep_the_url(layout='grid')"/>
+                                </t>
+                            </t>
+                            <h6 t-if="not maintenance_requests">No loans are registered</h6>
+                            <t t-call="website_solt_library.portal_maintenance_requests_kanban"
+                               t-if="layout == 'grid' and maintenance_requests"/>
+                            <t t-call="website_solt_library.portal_maintenance_requests_list"
+                               t-if="layout == 'list' and maintenance_requests"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+    <template id="portal_my_loan" name="Portal my Loan" inherit_id="portal.portal_sidebar"
+              primary="True">
+        <xpath expr="//body[@data-target='.navspy']/div[hasclass('o_portal_sidebar')]" position="attributes">
+            <attribute name="class">container-fluid o_portal_sidebar px-3</attribute>
+        </xpath>
+        <xpath expr="//div[hasclass('o_portal_sidebar')]" position="inside">
+            <t t-set="title" t-value="maintenance_request.reference or _('Loan')"/>
+            <div class="row">
+                <div class="col-12">
+                    <t t-set="partner" t-value="request.env.user.partner_id"/>
+                    <div t-attf-class="card mb-3 card-#{partner.id}">
+                        <div class="card-body pb-0">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-shrink-0">
+                                            <t t-call="website_common.avatar" t-if="partner">
+                                                <t t-set="p" t-value="partner"/>
+                                                <t t-set="image_class" t-value="'image_128'"/>
+                                                <t t-set="round_class" t-value="'rounded'"/>
+                                                <t t-set="size_class" t-valuef="md"/>
+                                                <t t-set="extra_classes"
+                                                   t-valuef="bg-primary-subtle text-primary font-size-18"/>
+                                            </t>
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <div class="text-muted">
+                                                <h5 class="font-size-16 mb-1" t-out="partner.display_name">partner
+                                                    name</h5>
+                                                <p class="mb-0" t-out="'{0}'.format(request.env.user.login)">
+                                                    @username</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-auto"/>
+                            </div>
+                            <div class="mt-3">
+                                <ul class="nav nav-tabs-custom overview-tabs">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" href="#information">Information</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-content mb-3">
+                        <div t-attf-class="tab-pane #{'active' if tab == 'information' else ''}" id="information"
+                             role="tabpanel">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="row my-2">
+                                                <div class="col-12">
+                                                    <a t-attf-href="/my/loans?layout={{layout}}" class="btn btn-primary">Go Back</a>
+                                                </div>
+                                            </div>
+                                            <t t-out="maintenance_request.reference"/>
+                                            <p class="">Definir plantilla con detalle del prestamo</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+</odoo>

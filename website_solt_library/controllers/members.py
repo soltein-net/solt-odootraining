@@ -25,7 +25,8 @@ class LibraryMembersController(http.Controller):
                         'name': email.split('@')[0],
                         'login': email,
                         'password': password,
-                        'share': False
+                        'share': False,
+                        'groups_id': [(6, 0, [request.env.ref('base.group_portal').id])]
                     })
                     if new_user:
                         request.env["library.member"].sudo().create({

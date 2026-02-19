@@ -1,74 +1,209 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <template id="books_list" name="Books List">
+        <t t-set="body_classname" t-value="'o_wslides_body'"/>
         <t t-call="website.layout">
-            <section class="s_books_list pt64 pb64">
-                <div class="container">
-                    <dov class="row">
-                        <div class="col-12">
-                            <nav class="navbar navbar-expand-lg navbar-light bg-light">
-                                <div class="container-fluid">
-                                    <a class="navbar-brand" href="#">Libreria</a>
-                                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                                    <span class="navbar-toggler-icon"></span>
-                                    </button>
-                                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                                        <li class="nav-item dropdown">
-                                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                Categorias
-                                            </a>
-                                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                                <li t-foreach="categories" t-as="category">
-                                                    <a t-attf-class="dropdown-item {{'active' if selected_category == category.id else ''}}" t-attf-href="/libros?category_id=#{category.id}"><t t-out="category.name"/></a>
-                                                </li>
-                                            </ul>
-                                        </li>
-                                        <li class="nav_link" t-if="search_query or selected_category">
-                                            <a class="nav-link" href="/libros">Limpiar filtros</a>
-                                        </li>
-                                    </ul>
-                                    <form class="d-flex" method="get" action="/libros">
-                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                        <input class="form-control me-2" t-att-value="search_query" name="book-name" id="book-name" type="search" placeholder="Buscar libros" aria-label="Buscar"/>
-                                        <button class="btn btn-outline-success" type="submit">Buscar</button>
-                                    </form>
-                                    </div>
-                                </div>
-                            </nav>
-                        </div>
-                        <div class="col-12 mt-3" t-if="success">
-                            <div class="alert alert-success" role="alert">
-                                <t t-out="success"/>
-                            </div>
-                        </div>
-                        <div class="col-12 mt-3" t-if="error">
-                            <div class="alert alert-danger" role="alert">
-                                <t t-out="error"/>
-                            </div>
-                        </div>
-                        <div class="col-12 mt-3" t-if="not books">
-                            <div class="alert alert-warning" role="alert">
-                                No tenemos libros para mostrar.
-                            </div>
-                        </div>
-                        <t t-foreach="books" t-as="book">
-                            <div class="col-12 col-md-6 col-lg-3 mt-3">
-                                <div class="card">
-                                    <img t-attf-src="/web/image/library.book/{{book.id}}/image_1920" class="card-img-top" t-att-alt="book.name"/>
-                                    <div class="card-body">
-                                        <h5 class="card-title" t-out="book.name">Nombre del libro</h5>
-                                        <div class="d-flex flex-wrap gap-2 align-items-center">
-                                            <a t-att-href="book.website_url" class="btn btn-primary">Ver mas</a>
-                                            <a t-attf-href="/prestamos/create/{{book.id}}" class="btn btn-primary" t-if="book.available_qty &gt; 0">Solicitar prestamo</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>   
-                        </t>
-                    </dov>
+            <div id="wrap" class="wrap o_wslides_wrap">
+                <!-- Repeat structure for every section to allow customization through website editor. !-->
+                <div class="oe_structure oe_empty">
+                    <section class="s_banner" data-snippet="s_banner"
+                            style="background-color:(0, 0, 0, 0); background-image: url(&quot;/website_slides/static/src/img/banner_default_all.svg&quot;); background-size: cover; background-position: 80% 20%">
+                        <div class="container py-5"><h1 class="display-3 mb-0 text-white">All Books</h1></div>
+                    </section>
                 </div>
-            </section>
+                <div class="container mt16 o_wslides_home_nav position-relative">
+                    <!-- Navbar dynamically composed using displayed channel tag groups. -->
+                    <nav class="navbar navbar-expand-md navbar-light shadow-sm ps-0 mb-3">
+                        <div class="navbar-nav border-end">
+                            <a class="nav-link nav-item px-3" href="/libros"><i class="oi oi-chevron-left"/></a>
+                        </div>
+                        <!-- Clear filtering (mobile)-->
+                        <div class="text-nowrap ms-auto d-md-none" t-if="search_category or search_tags">
+                            <a href="/libros" class="btn btn-info me-2" role="button" title="Clear filters">
+                                <i class="fa fa-eraser"/> Clear filters
+                            </a>
+                        </div>
+                        <t t-else="" t-call="website.website_search_box_input">
+                            <!-- Search box (mobile)-->
+                            <t t-set="_form_classes" t-valuef="o_wslides_nav_navbar_right d-md-none"/>
+                            <t t-set="search_type" t-valuef="books"/>
+                            <!-- No action: remain on same URL -->
+                            <t t-set="display_description" t-valuef="true"/>
+                            <t t-set="display_detail" t-valuef="false"/>
+                            <t t-set="placeholder">Search books</t>
+                            <t t-set="search" t-value="original_search or search_term"/>
+                            <input t-if="search_category" type="hidden" name="category" t-att-value="search_category" />
+                        </t>
+                        <button class="navbar-toggler px-1" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#navbarTagGroups"
+                            aria-controls="navbarTagGroups" aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon small"/>
+                        </button>
+                        <div class="collapse navbar-collapse" id="navbarTagGroups">
+                            <ul class="navbar-nav flex-grow-1">
+                                <li class="nav-item dropdown ml16" t-if="authors">
+                                    <a class="nav-link dropdown-toggle active"
+                                        href="/libros"
+                                        data-bs-target="#navToogleTagGroupAuthors"
+                                        role="button" data-bs-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false">Authors</a>
+                                    <div class="dropdown-menu" id="navToogleTagGroupAuthors">
+                                        <t t-foreach="authors" t-as="author">
+                                            <a rel="nofollow" t-att-class="'dropdown-item post_link %s' % ('active' if author.id in search_tags.ids else '')"
+                                                t-att-href="book_query_url(author=slugify_tags(search_tags.ids, toggle_tag_id=author.id), search=search_term, category=search_category)"
+                                                t-out="author.name"/>
+                                        </t>
+                                    </div>
+                                </li>
+                                <li class="nav-item dropdown ml16" t-if="authors">
+                                    <a class="nav-link dropdown-toggle active"
+                                        href="/libros"
+                                        data-bs-target="#navToogleTagGroupCategories"
+                                        role="button" data-bs-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false">Categories</a>
+                                    <div class="dropdown-menu" id="navToogleTagGroupCategories">
+                                        <t t-foreach="categories" t-as="categ">
+                                            <a rel="nofollow" t-att-class="'dropdown-item post_link %s' % ('active' if categ.id == search_category else '')"
+                                                t-att-href="book_query_url(author=slugify_tags(search_tags.ids), search=search_term, category=categ.id)"
+                                                t-out="categ.name"/>
+                                        </t>
+                                    </div>
+                                </li>
+                            </ul>
+                            <!-- Clear filtering (desktop)-->
+                            <div class="ms-auto d-none d-md-flex" t-if="search_category or search_tags">
+                                <a href="/libros" class="btn btn-info text-nowrap me-2" role="button" title="Clear filters">
+                                    <i class="fa fa-eraser"/> Clear filters
+                                </a>
+                            </div>
+                            <!-- Search box (desktop) -->
+                            <t t-call="website.website_search_box_input">
+                                <t t-set="_form_classes" t-valuef="o_wslides_nav_navbar_right d-none d-md-flex"/>
+                                <t t-set="search_type" t-valuef="books"/>
+                                <!-- No action: remain on same URL -->
+                                <t t-set="display_description" t-valuef="true"/>
+                                <t t-set="display_detail" t-valuef="false"/>
+                                <t t-set="placeholder">Search books</t>
+                                <t t-set="search" t-value="original_search or search_term"/>
+                                <input t-if="search_category" type="hidden" name="category" t-att-value="search_category" />
+                            </t>
+                        </div>
+                    </nav>
+                    <div class="alert alert-danger" role="alert" t-if="error" t-out="error"/>
+                    <div class="alert alert-success" role="alert" t-if="success" t-out="success"/>
+                    <div class="o_wprofile_email_validation_container mb16 mt16">
+                        <t t-call="website_profile.email_validation_banner">
+                            <t t-set="redirect_url" t-value="'/slides'"/>
+                            <t t-set="additional_validation_email_message"> and join this Community</t>
+                            <t t-set="additional_validated_email_message"> You may now participate in our eLearning.</t>
+                        </t>
+                    </div>
+                    <!-- Display tags -->
+                    <t t-if="search_term">
+                        <span class="align-items-baseline border d-inline-flex ps-2 rounded mb-2">
+                        <i class="fa fa-tag me-2 text-muted"/>
+                        <t t-out="search_term"/>
+                        <a t-att-href="book_query_url(author=slugify_tags(search_tags.ids), category=search_category)" class="btn border-0 py-1 post_link" t-att-rel="search_tags and 'nofollow'">&#215;</a>
+                        </span>
+                    </t>
+                    <t t-if="search_category and category">
+                        <span class="align-items-baseline border d-inline-flex ps-2 rounded mb-2">
+                        <i class="fa fa-tag me-2 text-muted"/>
+                        <t t-out="category.name"/>
+                        <a t-att-href="book_query_url(author=slugify_tags(search_tags.ids), search=search_term)" class="btn border-0 py-1 post_link" t-att-rel="search_tags and 'nofollow'">&#215;</a>
+                        </span>
+                    </t>
+                    <t t-foreach="search_tags" t-as="tag">
+                        <span class="align-items-baseline border d-inline-flex ps-2 rounded mb-2">
+                            <i class="fa fa-tag me-2 text-muted"/>
+                            <t t-out="tag.display_name"/>
+                            <a t-att-href='book_query_url(author=slugify_tags(search_tags.ids, tag.id), search=search_term, category=search_category)' class="btn border-0 py-1 post_link" t-att-rel="search_tags and 'nofollow'">&#215;</a>
+                        </span>
+                    </t>
+                </div>
+                <div class="container o_wslides_home_main pb-5">
+                    <div t-if="not books and not search_term and not search_category and not search_my and not search_tags">
+                        <p class="h2">No Book created yet.</p>
+                    </div>
+                    <div t-elif="search_term and not books" class="alert alert-info mb-5">
+                        No book was found matching your search <code><t t-out="search_term"/></code>.
+                    </div>
+                    <div t-elif="not books" class="alert alert-info mb-5">
+                        No book was found matching your search.
+                    </div>
+                    <t t-else="">
+                        <div t-if="original_search" class="alert alert-warning mb-5">
+                            No results found for '<span t-out="original_search"/>'. Showing results for '<span t-out="search_term"/>'.
+                        </div>
+                        <div class="row mx-n2">
+                            <t t-foreach="books" t-as="book">
+                                <div class="col-12 col-sm-6 col-lg-4 px-2 d-flex">
+                                    <t t-call="website_solt_library.book_card"/>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+                    <div t-if="pager">
+                        <t t-call="portal.pager"/>
+                    </div>
+                </div>
+
+                <t t-call="website_solt_library.books_footer"></t>
+            </div>
         </t>
+    </template>
+    <template id='book_card' name="Book Card">
+        <div t-attf-class="card w-100 o_wslides_course_card mb-4 #{'o_wslides_course_unpublished' if not book.is_published else ''}">
+            <div class="o_book_image_container">
+                <img t-attf-src="/web/image/library.book/#{book.id}/image_512" t-att-alt="book.name" class="o_book_card_image"/>
+            </div>
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                    <span class="badge bg-secondary rounded-pill px-2 py-1" t-if="book.has_active_loan_for_partner()">Loaned</span>
+                    <span class="badge bg-primary rounded-pill px-2 py-1" t-out="book.category_id.display_name"/>
+                    <small class="text-muted" t-att-datetime="book.publication_date" t-out="book.publication_date.year"/>
+                </div>
+                <h5 class="fw-bolder o_wslides_desc_truncate_2 mb-0" t-out="book.name"/>
+                <small class="author-data mb-3 d-flex align-items-center gap-1">
+                    <span class="">by</span>
+                    <t t-foreach="book.author_ids" t-as="author">
+                        <t t-if="search_tags">
+                            <a t-att-href="book_query_url(author=slugify_tags(search_tags.ids, toggle_tag_id=author.id), search=search_term, category=search_category)" t-attf-class="badge post_link #{'text-bg-primary' if author in search_tags else 'o_wslides_channel_tag o_tag_color_0'}" t-att-rel="search_tags and 'nofollow'" t-out="author.name"/>
+                        </t>
+                        <t t-else="">
+                            <a t-att-href="book_query_url(author=slugify_tags(search_tags.ids, toggle_tag_id=author.id), search=search_term, category=search_category)" t-attf-class="badge post_link  #{'text-bg-secondary'}" t-att-rel="search_tags and 'nofollow'" t-out="author.name"/>
+                        </t>
+                    </t>
+                </small>
+                <p class="card-text o_wslides_desc_truncate_3" t-out="book.description"/>
+                <div class="details mt-auto d-flex align-items-center gap-3 justify-content-between">
+                    <div class="d-flex gap-3">
+                        <div class="d-flex flex-column">
+                            <small class="text-uppercase text-[10px] fw-bolder text-muted">Language</small>
+                            <span class="" t-field="book.language"/>
+                        </div>
+                        <div class="border-start"/>
+                        <div class="d-flex flex-column">
+                            <small class="text-uppercase text-[10px] fw-bolder text-muted">Pages</small>
+                            <span class="" t-field="book.pages"/>
+                        </div>
+                    </div>
+                    <div class="buttons d-flex gap-2">
+                        <a t-att-href="book.website_url" class="btn btn-primary d-flex justify-content-between gap-3 align-items-center">
+                            <span class="">Read More</span>
+                            <i class="fa fa-arrow-right"/>
+                        </a>
+                        <a t-att-href="'/libros/loan/%d' % book.id" class="btn btn-secondary" t-if="book.state != 'unavailable' and not book.has_active_loan_for_partner() and not request.website.is_public_user()">
+                            <i class="fa fa-book"/>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    <template id='books_footer'>
+        <section class="s_banner">
+            <div class="oe_structure oe_empty" id="oe_structure_website_slides_course_footer_1"/>
+        </section>
     </template>
 </odoo>
