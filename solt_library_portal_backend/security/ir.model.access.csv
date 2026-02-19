@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_library_book_portal,library.book.portal,solt_library.model_library_book,base.group_portal,1,0,0,0
+access_library_author_portal,library.author.portal,solt_library.model_library_author,base.group_portal,1,0,0,0
+access_library_category_portal,library.category.portal,solt_library.model_library_category,base.group_portal,1,0,0,0
+access_library_member_portal,library.member.portal,solt_library.model_library_member,base.group_portal,1,0,0,0
+access_library_loan_portal,library.loan.portal,solt_library.model_library_loan,base.group_portal,1,0,0,0

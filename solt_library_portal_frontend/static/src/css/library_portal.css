@@ -1,0 +1,308 @@
+/**
+ * ============================================================================
+ * ESTILOS CSS PARA EL PORTAL DE BIBLIOTECA
+ * ============================================================================
+ *
+ * Este archivo contiene los estilos personalizados para el portal de biblioteca.
+ *
+ * CONCEPTOS CLAVE PARA LA CAPACITACIÓN:
+ * =====================================
+ *
+ * 1. SISTEMA DE ASSETS EN ODOO 17:
+ *    - Los archivos CSS/JS se declaran en __manifest__.py
+ *    - Se agrupan en "bundles" (ej: web.assets_frontend)
+ *    - Odoo los compila y minimiza automáticamente
+ *
+ * 2. CONVENCIONES DE NOMBRES:
+ *    - Prefijo del módulo para evitar conflictos
+ *    - BEM (Block Element Modifier) recomendado
+ *
+ * 3. BOOTSTRAP 5:
+ *    - Incluido en Odoo 17
+ *    - Usar variables y clases de Bootstrap
+ *    - Extender, no sobrescribir cuando sea posible
+ */
+
+/* ==========================================================================
+   VARIABLES PERSONALIZADAS
+   ========================================================================== */
+
+:root {
+    /* Colores del módulo de biblioteca */
+    --library-primary: #2c3e50;
+    --library-secondary: #3498db;
+    --library-accent: #e74c3c;
+    --library-success: #27ae60;
+    --library-warning: #f39c12;
+
+    /* Espaciado */
+    --library-spacing-sm: 0.5rem;
+    --library-spacing-md: 1rem;
+    --library-spacing-lg: 2rem;
+
+    /* Sombras */
+    --library-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --library-shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
+    --library-shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
+
+    /* Transiciones */
+    --library-transition: all 0.3s ease;
+}
+
+/* ==========================================================================
+   TARJETAS DE LIBROS
+   ========================================================================== */
+
+/**
+ * Tarjeta de libro en el catálogo.
+ * Usa transiciones suaves para hover effects.
+ */
+.library-book-card {
+    transition: var(--library-transition);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.library-book-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--library-shadow-md);
+}
+
+/* Contenedor de imagen de portada */
+.book-cover-container {
+    position: relative;
+    overflow: hidden;
+    height: 200px;
+    background-color: #f8f9fa;
+}
+
+.book-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--library-transition);
+}
+
+.library-book-card:hover .book-cover {
+    transform: scale(1.05);
+}
+
+/* Placeholder para libros sin imagen */
+.book-cover-placeholder {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.book-cover-placeholder-large {
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ==========================================================================
+   DETALLE DE LIBRO
+   ========================================================================== */
+
+.book-detail-image {
+    max-height: 400px;
+    object-fit: contain;
+}
+
+/* ==========================================================================
+   BARRA DE BÚSQUEDA
+   ========================================================================== */
+
+.library-search-bar {
+    background-color: #f8f9fa;
+    padding: var(--library-spacing-md);
+    border-radius: 0.5rem;
+}
+
+.library-search-bar .form-control:focus,
+.library-search-bar .form-select:focus {
+    border-color: var(--library-secondary);
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+/* ==========================================================================
+   FILTROS
+   ========================================================================== */
+
+.library-filters .btn-group {
+    flex-wrap: wrap;
+}
+
+.library-filters .btn {
+    margin-bottom: 0.25rem;
+}
+
+/* ==========================================================================
+   BADGES DE ESTADO
+   ========================================================================== */
+
+/**
+ * Estilos adicionales para badges de disponibilidad.
+ * Complementan las clases de Bootstrap.
+ */
+.badge.bg-success {
+    background-color: var(--library-success) !important;
+}
+
+.badge.bg-warning {
+    background-color: var(--library-warning) !important;
+    color: #212529 !important;
+}
+
+.badge.bg-danger {
+    background-color: var(--library-accent) !important;
+}
+
+/* ==========================================================================
+   TABLA DE PRÉSTAMOS
+   ========================================================================== */
+
+/**
+ * Estilos para filas de préstamos vencidos.
+ */
+.table tr.table-danger {
+    --bs-table-bg: rgba(231, 76, 60, 0.1);
+    --bs-table-hover-bg: rgba(231, 76, 60, 0.15);
+}
+
+/* ==========================================================================
+   TARJETA DE MEMBRESÍA
+   ========================================================================== */
+
+/**
+ * Estilo especial para la tarjeta de membresía.
+ */
+.card.border-primary {
+    border-width: 2px;
+}
+
+/* ==========================================================================
+   ESTADÍSTICAS
+   ========================================================================== */
+
+/**
+ * Cards de estadísticas con iconos.
+ */
+.card .fa-2x,
+.card .fa-3x,
+.card .fa-4x {
+    display: block;
+}
+
+/* ==========================================================================
+   ANIMACIONES
+   ========================================================================== */
+
+/**
+ * Animación de entrada para elementos.
+ */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.library-book-card {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+/* Delay escalonado para múltiples tarjetas */
+.row > .col:nth-child(1) .library-book-card { animation-delay: 0.1s; }
+.row > .col:nth-child(2) .library-book-card { animation-delay: 0.2s; }
+.row > .col:nth-child(3) .library-book-card { animation-delay: 0.3s; }
+.row > .col:nth-child(4) .library-book-card { animation-delay: 0.4s; }
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+
+/**
+ * Ajustes para dispositivos móviles.
+ */
+@media (max-width: 767.98px) {
+    .book-cover-container {
+        height: 150px;
+    }
+
+    .library-search-bar .row > div {
+        margin-bottom: 0.5rem;
+    }
+
+    .library-filters .btn-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .library-filters .btn {
+        width: 100%;
+        border-radius: 0.25rem !important;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* ==========================================================================
+   IMPRESIÓN
+   ========================================================================== */
+
+/**
+ * Estilos para impresión.
+ */
+@media print {
+    .library-search-bar,
+    .library-filters,
+    .pagination {
+        display: none !important;
+    }
+
+    .library-book-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+}
+
+/* ==========================================================================
+   ACCESIBILIDAD
+   ========================================================================== */
+
+/**
+ * Mejoras de accesibilidad.
+ */
+
+/* Focus visible para navegación por teclado */
+.library-book-card:focus-within {
+    outline: 2px solid var(--library-secondary);
+    outline-offset: 2px;
+}
+
+/* Alto contraste para badges */
+@media (prefers-contrast: high) {
+    .badge {
+        border: 1px solid currentColor;
+    }
+}
+
+/* Reducción de movimiento */
+@media (prefers-reduced-motion: reduce) {
+    .library-book-card,
+    .book-cover {
+        animation: none;
+        transition: none;
+    }
+
+    .library-book-card:hover {
+        transform: none;
+    }
+}

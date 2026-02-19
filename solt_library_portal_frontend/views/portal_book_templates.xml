@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+    ============================================================================
+    TEMPLATES DE LIBROS PARA EL PORTAL
+    ============================================================================
+
+    Este archivo contiene los templates QWeb para las páginas de libros:
+    - Listado/catálogo de libros
+    - Detalle de un libro
+
+    CONCEPTOS CLAVE PARA LA CAPACITACIÓN:
+    =====================================
+
+    1. ESTRUCTURA DE PÁGINAS:
+       - Siempre extender portal.portal_layout
+       - Usar el slot 'o_portal_content' para el contenido
+
+    2. GRID RESPONSIVO:
+       - Bootstrap 5 viene incluido en Odoo 17
+       - Usar clases col-*, row, container
+
+    3. DIRECTIVAS AVANZADAS:
+       - t-att-*: Atributos dinámicos (t-att-class, t-att-href)
+       - t-attf-*: Atributos con formato (interpolación)
+       - t-set/t-value: Definir variables
+    -->
+
+    <!-- ===================================================================
+         PÁGINA: CATÁLOGO DE LIBROS
+         =================================================================== -->
+    <template id="portal_my_library" name="Library Catalog">
+        <!--
+        HERENCIA DEL LAYOUT:
+        - portal.portal_layout es el template base del portal
+        - Incluye header, footer, sidebar, breadcrumbs
+        - Nuestro contenido va dentro de este layout
+        -->
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+
+            <div class="o_portal_content">
+                <!-- Encabezado de página -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>
+                        <i class="fa fa-book me-2"/>Catálogo de Biblioteca
+                    </h2>
+                    <span class="text-muted">
+                        <t t-esc="book_count"/> libros encontrados
+                    </span>
+                </div>
+
+                <!-- Barra de búsqueda -->
+                <!--
+                t-call invoca otro template, pasando el contexto actual.
+                Podemos agregar variables con t-set dentro del t-call.
+                -->
+                <t t-call="solt_library_portal_frontend.search_bar">
+                    <t t-set="search_url" t-value="'/my/library'"/>
+                </t>
+
+                <!-- Filtros -->
+                <t t-call="solt_library_portal_frontend.search_filters"/>
+
+                <!-- Grid de libros -->
+                <t t-if="books">
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+                        <!--
+                        t-foreach itera sobre el recordset de libros.
+                        t-as="book" define el nombre de variable para cada elemento.
+                        -->
+                        <t t-foreach="books" t-as="book">
+                            <div class="col">
+                                <!-- Llamar al componente de tarjeta -->
+                                <t t-call="solt_library_portal_frontend.book_card"/>
+                            </div>
+                        </t>
+                    </div>
+
+                    <!-- Paginación -->
+                    <div class="o_portal_pager d-flex justify-content-center mt-4">
+                        <t t-call="portal.pager"/>
+                    </div>
+                </t>
+
+                <!-- Estado vacío -->
+                <t t-else="">
+                    <div class="text-center py-5">
+                        <i class="fa fa-book fa-4x text-muted mb-3"/>
+                        <h4 class="text-muted">No se encontraron libros</h4>
+                        <p class="text-muted">
+                            Intenta con otros términos de búsqueda o filtros.
+                        </p>
+                        <a href="/my/library" class="btn btn-primary">
+                            Ver todos los libros
+                        </a>
+                    </div>
+                </t>
+            </div>
+        </t>
+    </template>
+
+    <!-- ===================================================================
+         PÁGINA: DETALLE DE LIBRO
+         =================================================================== -->
+    <template id="portal_book_detail" name="Book Detail">
+        <t t-call="portal.portal_layout">
+            <div class="o_portal_content">
+                <!-- Tarjeta principal del libro -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Imagen del libro -->
+                            <div class="col-md-4 text-center mb-4 mb-md-0">
+                                <t t-if="book.image_1920">
+                                    <!--
+                                    Imagen dinámica usando el controlador de Odoo.
+                                    /web/image/{modelo}/{id}/{campo}
+                                    -->
+                                    <img t-att-src="'/web/image/library.book/%s/image_512' % book.id"
+                                         class="img-fluid rounded shadow book-detail-image"
+                                         t-att-alt="book.name"/>
+                                </t>
+                                <t t-else="">
+                                    <div class="book-cover-placeholder-large bg-light rounded p-5">
+                                        <i class="fa fa-book fa-5x text-muted"/>
+                                    </div>
+                                </t>
+                            </div>
+
+                            <!-- Información del libro -->
+                            <div class="col-md-8">
+                                <!-- Título -->
+                                <h1 class="mb-3" t-field="book.name"/>
+
+                                <!-- Autores -->
+                                <p class="lead text-muted mb-3">
+                                    <i class="fa fa-user me-2"/>
+                                    <t t-foreach="book.author_ids" t-as="author">
+                                        <span t-esc="author.name"/>
+                                        <t t-if="not author_last">, </t>
+                                    </t>
+                                </p>
+
+                                <!-- Información básica -->
+                                <table class="table table-borderless">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row" style="width: 150px;">
+                                                <i class="fa fa-barcode me-2"/>ISBN
+                                            </th>
+                                            <td><span t-field="book.isbn"/></td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">
+                                                <i class="fa fa-folder me-2"/>Categoría
+                                            </th>
+                                            <td><span t-field="book.category_id.complete_name"/></td>
+                                        </tr>
+                                        <tr t-if="book.publisher">
+                                            <th scope="row">
+                                                <i class="fa fa-building me-2"/>Editorial
+                                            </th>
+                                            <td><span t-field="book.publisher"/></td>
+                                        </tr>
+                                        <tr t-if="book.publication_date">
+                                            <th scope="row">
+                                                <i class="fa fa-calendar me-2"/>Publicación
+                                            </th>
+                                            <td><span t-field="book.publication_date"/></td>
+                                        </tr>
+                                        <tr t-if="book.pages">
+                                            <th scope="row">
+                                                <i class="fa fa-file me-2"/>Páginas
+                                            </th>
+                                            <td>
+                                                <t t-esc="book.pages"/> páginas
+                                            </td>
+                                        </tr>
+                                        <tr t-if="book.language">
+                                            <th scope="row">
+                                                <i class="fa fa-globe me-2"/>Idioma
+                                            </th>
+                                            <td><span t-field="book.language"/></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <!-- Estado de disponibilidad -->
+                                <div class="alert mt-3"
+                                     t-attf-class="alert alert-#{book.get_availability_class()}">
+                                    <div class="d-flex align-items-center">
+                                        <i t-attf-class="fa fa-#{book.state == 'available' and 'check-circle' or (book.state == 'low_stock' and 'exclamation-triangle' or 'times-circle')} fa-2x me-3"/>
+                                        <div>
+                                            <strong t-esc="book.get_availability_text()"/>
+                                            <t t-if="book.state != 'unavailable'">
+                                                <br/>
+                                                <small class="text-muted">
+                                                    Total: <t t-esc="book.total_qty"/> copias
+                                                </small>
+                                            </t>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Botón de acción -->
+                                <div class="mt-4">
+                                    <a href="/my/library" class="btn btn-outline-secondary me-2">
+                                        <i class="fa fa-arrow-left me-2"/>Volver al catálogo
+                                    </a>
+                                    <t t-if="book.state != 'unavailable'">
+                                        <button class="btn btn-primary" disabled="disabled"
+                                                title="Solicitar préstamo (próximamente)">
+                                            <i class="fa fa-bookmark me-2"/>Solicitar préstamo
+                                        </button>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Descripción del libro -->
+                <t t-if="book.description">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fa fa-align-left me-2"/>Descripción
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <!--
+                            t-raw muestra HTML sin escapar.
+                            CUIDADO: Solo usar con contenido confiable.
+                            -->
+                            <div t-field="book.description"/>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- Información de autores -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fa fa-users me-2"/>Autores
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <t t-foreach="book.author_ids" t-as="author">
+                                <div class="col-md-6 mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <!-- Avatar del autor -->
+                                        <t t-if="author.avatar_128">
+                                            <img t-att-src="'/web/image/library.author/%s/avatar_128' % author.id"
+                                                 class="rounded-circle me-3"
+                                                 style="width: 64px; height: 64px; object-fit: cover;"
+                                                 t-att-alt="author.name"/>
+                                        </t>
+                                        <t t-else="">
+                                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-3"
+                                                 style="width: 64px; height: 64px;">
+                                                <i class="fa fa-user fa-2x text-white"/>
+                                            </div>
+                                        </t>
+                                        <div>
+                                            <h6 class="mb-0" t-esc="author.name"/>
+                                            <small class="text-muted" t-if="author.nationality">
+                                                <i class="fa fa-flag me-1"/>
+                                                <t t-esc="author.nationality"/>
+                                            </small>
+                                            <br t-if="author.book_count > 1"/>
+                                            <small class="text-muted" t-if="author.book_count > 1">
+                                                <t t-esc="author.book_count"/> libros en catálogo
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Libros relacionados -->
+                <t t-if="related_books">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fa fa-book me-2"/>Libros relacionados
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+                                <t t-foreach="related_books" t-as="book">
+                                    <div class="col">
+                                        <t t-call="solt_library_portal_frontend.book_card"/>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+
+            </div>
+        </t>
+    </template>
+
+</odoo>

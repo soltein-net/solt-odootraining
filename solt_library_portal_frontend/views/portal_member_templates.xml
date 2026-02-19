@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+    ============================================================================
+    TEMPLATES DE PERFIL DE MIEMBRO PARA EL PORTAL
+    ============================================================================
+
+    Este archivo contiene los templates QWeb para el perfil del miembro
+    de biblioteca en el portal.
+
+    CONCEPTOS CLAVE PARA LA CAPACITACIÓN:
+    =====================================
+
+    1. DISEÑO DE DASHBOARD:
+       - Cards con estadísticas
+       - Indicadores visuales de estado
+       - Uso de iconos y colores
+
+    2. INFORMACIÓN SENSIBLE:
+       - Solo mostrar datos propios del usuario
+       - No exponer datos de otros miembros
+    -->
+
+    <!-- ===================================================================
+         PÁGINA: PERFIL DE MIEMBRO
+         =================================================================== -->
+    <template id="portal_member_profile" name="Member Profile">
+        <t t-call="portal.portal_layout">
+            <div class="o_portal_content">
+                <!-- Encabezado -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>
+                        <i class="fa fa-user me-2"/>Mi Perfil de Biblioteca
+                    </h2>
+                </div>
+
+                <!-- No es miembro -->
+                <t t-if="not is_member">
+                    <div class="card">
+                        <div class="card-body text-center py-5">
+                            <i class="fa fa-id-card fa-4x text-muted mb-3"/>
+                            <h4>No eres miembro de la biblioteca</h4>
+                            <p class="text-muted mb-4">
+                                Para poder pedir libros prestados, necesitas
+                                una membresía de biblioteca.
+                            </p>
+                            <div class="alert alert-info d-inline-block">
+                                <i class="fa fa-info-circle me-2"/>
+                                Contacta con la biblioteca para obtener tu membresía.
+                            </div>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- Es miembro -->
+                <t t-else="">
+                    <div class="row">
+                        <!-- Columna principal -->
+                        <div class="col-lg-8">
+                            <!-- Tarjeta de membresía -->
+                            <div class="card mb-4">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">
+                                        <i class="fa fa-id-badge me-2"/>Tarjeta de Membresía
+                                    </h5>
+                                    <!--
+                                    Badge dinámico usando método del modelo.
+                                    Muestra el tipo de membresía con color apropiado.
+                                    -->
+                                    <span t-attf-class="badge bg-#{member.get_membership_badge_class()} fs-6">
+                                        <t t-if="member.membership_type == 'student'">Estudiante</t>
+                                        <t t-elif="member.membership_type == 'regular'">Regular</t>
+                                        <t t-elif="member.membership_type == 'premium'">Premium</t>
+                                        <t t-elif="member.membership_type == 'lifetime'">Vitalicio</t>
+                                    </span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <!-- Avatar -->
+                                        <div class="col-md-3 text-center mb-3 mb-md-0">
+                                            <t t-if="member.avatar_256">
+                                                <img t-att-src="'/web/image/library.member/%s/avatar_256' % member.id"
+                                                     class="rounded-circle shadow"
+                                                     style="width: 120px; height: 120px; object-fit: cover;"
+                                                     t-att-alt="member.name"/>
+                                            </t>
+                                            <t t-else="">
+                                                <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center mx-auto"
+                                                     style="width: 120px; height: 120px;">
+                                                    <i class="fa fa-user fa-3x text-white"/>
+                                                </div>
+                                            </t>
+                                        </div>
+
+                                        <!-- Información -->
+                                        <div class="col-md-9">
+                                            <h3 class="mb-1" t-field="member.name"/>
+                                            <p class="text-muted mb-3">
+                                                <i class="fa fa-barcode me-2"/>
+                                                Código: <strong t-field="member.code"/>
+                                            </p>
+
+                                            <div class="row">
+                                                <div class="col-sm-6 mb-2">
+                                                    <i class="fa fa-envelope text-muted me-2"/>
+                                                    <span t-field="member.email"/>
+                                                </div>
+                                                <div class="col-sm-6 mb-2" t-if="member.phone">
+                                                    <i class="fa fa-phone text-muted me-2"/>
+                                                    <span t-field="member.phone"/>
+                                                </div>
+                                            </div>
+
+                                            <!-- Estado de membresía -->
+                                            <div class="mt-3">
+                                                <span t-attf-class="badge bg-#{member.get_state_badge_class()} fs-6">
+                                                    <t t-if="member.state == 'active'">
+                                                        <i class="fa fa-check-circle me-1"/>Activo
+                                                    </t>
+                                                    <t t-elif="member.state == 'suspended'">
+                                                        <i class="fa fa-pause-circle me-1"/>Suspendido
+                                                    </t>
+                                                    <t t-elif="member.state == 'expired'">
+                                                        <i class="fa fa-times-circle me-1"/>Vencido
+                                                    </t>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Estadísticas -->
+                            <div class="row mb-4">
+                                <div class="col-md-3">
+                                    <div class="card text-center h-100 border-primary">
+                                        <div class="card-body">
+                                            <i class="fa fa-book fa-2x text-primary mb-2"/>
+                                            <h3 class="mb-0" t-esc="member.active_loan_count"/>
+                                            <small class="text-muted">Préstamos Activos</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card text-center h-100">
+                                        <div class="card-body">
+                                            <i t-attf-class="fa fa-exclamation-circle fa-2x mb-2 #{member.overdue_loan_count > 0 and 'text-danger' or 'text-success'}"/>
+                                            <h3 class="mb-0" t-esc="member.overdue_loan_count"/>
+                                            <small class="text-muted">Vencidos</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card text-center h-100">
+                                        <div class="card-body">
+                                            <i t-attf-class="fa fa-dollar fa-2x mb-2 #{member.pending_fees > 0 and 'text-warning' or 'text-success'}"/>
+                                            <h3 class="mb-0">$<t t-esc="'%.2f' % member.pending_fees"/></h3>
+                                            <small class="text-muted">Recargos</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card text-center h-100">
+                                        <div class="card-body">
+                                            <i class="fa fa-bookmark fa-2x text-info mb-2"/>
+                                            <h3 class="mb-0" t-esc="member.get_remaining_loans()"/>
+                                            <small class="text-muted">Disponibles</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Últimos préstamos -->
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">
+                                        <i class="fa fa-history me-2"/>Actividad Reciente
+                                    </h5>
+                                    <a href="/my/loans" class="btn btn-sm btn-outline-primary">
+                                        Ver todos
+                                    </a>
+                                </div>
+                                <div class="card-body p-0">
+                                    <t t-set="recent_loans" t-value="member.loan_ids[:5]"/>
+                                    <t t-if="recent_loans">
+                                        <div class="list-group list-group-flush">
+                                            <t t-foreach="recent_loans" t-as="loan">
+                                                <a t-att-href="'/my/loans/%s' % loan.id"
+                                                   class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <strong t-esc="loan.book_id.name"/>
+                                                        <br/>
+                                                        <small class="text-muted">
+                                                            <t t-esc="loan.reference"/> -
+                                                            <t t-field="loan.loan_date"/>
+                                                        </small>
+                                                    </div>
+                                                    <t t-call="solt_library_portal_frontend.loan_status_badge"/>
+                                                </a>
+                                            </t>
+                                        </div>
+                                    </t>
+                                    <t t-else="">
+                                        <div class="text-center py-4 text-muted">
+                                            <i class="fa fa-bookmark-o fa-2x mb-2"/>
+                                            <p>No hay actividad reciente</p>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Columna lateral -->
+                        <div class="col-lg-4">
+                            <!-- Información de membresía -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fa fa-info-circle me-2"/>Detalles de Membresía
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-unstyled mb-0">
+                                        <li class="mb-3">
+                                            <small class="text-muted d-block">Fecha de Registro</small>
+                                            <span t-field="member.registration_date"/>
+                                        </li>
+                                        <li class="mb-3">
+                                            <small class="text-muted d-block">Vencimiento</small>
+                                            <t t-if="member.expiration_date">
+                                                <span t-field="member.expiration_date"/>
+                                                <!--
+                                                Cálculo de días restantes para vencimiento.
+                                                Usa Python directamente en el template.
+                                                -->
+                                                <t t-set="days_to_expire" t-value="(member.expiration_date - datetime.date.today()).days"/>
+                                                <t t-if="days_to_expire > 0 and days_to_expire &lt;= 30">
+                                                    <br/>
+                                                    <small class="text-warning">
+                                                        <i class="fa fa-exclamation-triangle me-1"/>
+                                                        Vence en <t t-esc="days_to_expire"/> días
+                                                    </small>
+                                                </t>
+                                            </t>
+                                            <t t-else="">
+                                                <span class="text-success">Sin vencimiento</span>
+                                            </t>
+                                        </li>
+                                        <li class="mb-3">
+                                            <small class="text-muted d-block">Máximo de Préstamos</small>
+                                            <span t-esc="member.max_loans"/> libros simultáneos
+                                        </li>
+                                        <li>
+                                            <small class="text-muted d-block">Días de Préstamo</small>
+                                            <span t-esc="member.loan_days"/> días por libro
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Beneficios según tipo -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fa fa-star me-2"/>Beneficios
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-unstyled mb-0">
+                                        <t t-if="member.membership_type == 'student'">
+                                            <li class="mb-2">
+                                                <i class="fa fa-check text-success me-2"/>
+                                                3 préstamos simultáneos
+                                            </li>
+                                            <li class="mb-2">
+                                                <i class="fa fa-check text-success me-2"/>
+                                                14 días por préstamo
+                                            </li>
+                                            <li>
+                                                <i class="fa fa-check text-success me-2"/>
+                                                Acceso al catálogo completo
+                                            </li>
+                                        </t>
+                                        <t t-elif="member.membership_type == 'regular'">
+                                            <li class="mb-2">
+                                                <i class="fa fa-check text-success me-2"/>
+                                                5 préstamos simultáneos
+                                            </li>
+                                            <li class="mb-2">
+                                                <i class="fa fa-check text-success me-2"/>
+                                                21 días por préstamo
+                                            </li>
+                                            <li>
+                                                <i class="fa fa-check text-success me-2"/>
+                                                Acceso al catálogo completo
+                                            </li>
+                                        </t>
+                                        <t t-elif="member.membership_type == 'premium'">
+                                            <li class="mb-2">
+                                                <i class="fa fa-check text-success me-2"/>
+                                                10 préstamos simultáneos
+                                            </li>
+                                            <li class="mb-2">
+                                                <i class="fa fa-check text-success me-2"/>
+                                                30 días por préstamo
+                                            </li>
+                                            <li class="mb-2">
+                                                <i class="fa fa-check text-success me-2"/>
+                                                Prioridad en reservas
+                                            </li>
+                                            <li>
+                                                <i class="fa fa-check text-success me-2"/>
+                                                Descuento en recargos
+                                            </li>
+                                        </t>
+                                        <t t-elif="member.membership_type == 'lifetime'">
+                                            <li class="mb-2">
+                                                <i class="fa fa-check text-success me-2"/>
+                                                15 préstamos simultáneos
+                                            </li>
+                                            <li class="mb-2">
+                                                <i class="fa fa-check text-success me-2"/>
+                                                45 días por préstamo
+                                            </li>
+                                            <li class="mb-2">
+                                                <i class="fa fa-check text-success me-2"/>
+                                                Membresía sin vencimiento
+                                            </li>
+                                            <li class="mb-2">
+                                                <i class="fa fa-check text-success me-2"/>
+                                                Máxima prioridad
+                                            </li>
+                                            <li>
+                                                <i class="fa fa-check text-success me-2"/>
+                                                Todos los beneficios premium
+                                            </li>
+                                        </t>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Acciones rápidas -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fa fa-bolt me-2"/>Acciones Rápidas
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-grid gap-2">
+                                        <a href="/my/library" class="btn btn-primary">
+                                            <i class="fa fa-search me-2"/>Explorar Catálogo
+                                        </a>
+                                        <a href="/my/loans" class="btn btn-outline-primary">
+                                            <i class="fa fa-bookmark me-2"/>Ver Préstamos
+                                        </a>
+                                        <a href="/my/loans?filterby=overdue" class="btn btn-outline-danger"
+                                           t-if="member.overdue_loan_count > 0">
+                                            <i class="fa fa-exclamation-triangle me-2"/>
+                                            Préstamos Vencidos
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </div>
+        </t>
+    </template>
+
+</odoo>

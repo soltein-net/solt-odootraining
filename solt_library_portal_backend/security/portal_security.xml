@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+    ============================================================================
+    REGLAS DE SEGURIDAD PARA EL PORTAL DE BIBLIOTECA
+    ============================================================================
+
+    Este archivo define las reglas de acceso para usuarios del portal.
+
+    CONCEPTOS CLAVE PARA LA CAPACITACIÓN:
+    =====================================
+
+    1. RECORD RULES (Reglas de Registro):
+       - Controlan QUÉ registros puede ver/modificar un usuario
+       - Se aplican ADEMÁS de los permisos del modelo
+       - Usan dominios para filtrar registros
+
+    2. TIPOS DE REGLAS:
+       - Global: Sin grupo específico (se aplica a todos)
+       - Por grupo: Solo para usuarios de un grupo
+
+    3. PERMISOS POR OPERACIÓN:
+       - perm_read: Lectura
+       - perm_write: Escritura
+       - perm_create: Creación
+       - perm_unlink: Eliminación
+
+    4. DOMINIOS DE SEGURIDAD:
+       - Expresiones que filtran registros
+       - Pueden referenciar al usuario actual (user)
+    -->
+
+    <!-- ===================================================================
+         REGLA: Usuarios del Portal pueden ver libros activos
+         =================================================================== -->
+    <record id="library_book_portal_rule" model="ir.rule">
+        <field name="name">Portal: Ver libros activos</field>
+        <field name="model_id" ref="solt_library.model_library_book"/>
+        <field name="domain_force">[('active', '=', True)]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- ===================================================================
+         REGLA: Usuarios del Portal pueden ver autores
+         =================================================================== -->
+    <record id="library_author_portal_rule" model="ir.rule">
+        <field name="name">Portal: Ver autores</field>
+        <field name="model_id" ref="solt_library.model_library_author"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- ===================================================================
+         REGLA: Usuarios del Portal pueden ver categorías
+         =================================================================== -->
+    <record id="library_category_portal_rule" model="ir.rule">
+        <field name="name">Portal: Ver categorías</field>
+        <field name="model_id" ref="solt_library.model_library_category"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- ===================================================================
+         REGLA: Usuarios del Portal solo ven SU membresía
+         =================================================================== -->
+    <!--
+    IMPORTANTE: Esta regla usa el dominio para filtrar.
+
+    EXPLICACIÓN DEL DOMINIO:
+    [('partner_id', '=', user.partner_id.id)]
+
+    - partner_id: Campo del modelo library.member
+    - user: Referencia al usuario actual (res.users)
+    - user.partner_id.id: ID del contacto asociado al usuario
+
+    Esto asegura que un usuario del portal SOLO pueda ver
+    su propia información de membresía.
+    -->
+    <record id="library_member_portal_rule" model="ir.rule">
+        <field name="name">Portal: Solo mi membresía</field>
+        <field name="model_id" ref="solt_library.model_library_member"/>
+        <field name="domain_force">[('partner_id', '=', user.partner_id.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- ===================================================================
+         REGLA: Usuarios del Portal solo ven SUS préstamos
+         =================================================================== -->
+    <!--
+    DOMINIO COMPUESTO:
+    [('member_id.partner_id', '=', user.partner_id.id)]
+
+    - member_id: Relación Many2one a library.member
+    - member_id.partner_id: Navegación a través de la relación
+    - Permite filtrar préstamos donde el miembro corresponde al usuario
+
+    Esta técnica de navegación es muy útil para reglas de seguridad
+    que involucran múltiples modelos relacionados.
+    -->
+    <record id="library_loan_portal_rule" model="ir.rule">
+        <field name="name">Portal: Solo mis préstamos</field>
+        <field name="model_id" ref="solt_library.model_library_loan"/>
+        <field name="domain_force">[('member_id.partner_id', '=', user.partner_id.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+</odoo>

@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+    ============================================================================
+    TEMPLATES DE PRÉSTAMOS PARA EL PORTAL
+    ============================================================================
+
+    Este archivo contiene los templates QWeb para las páginas de préstamos:
+    - Listado de préstamos del usuario
+    - Detalle de un préstamo
+
+    CONCEPTOS CLAVE PARA LA CAPACITACIÓN:
+    =====================================
+
+    1. TABLAS RESPONSIVAS:
+       - Usar table-responsive para scroll horizontal en móviles
+       - Clases table-* de Bootstrap
+
+    2. FORMATEO DE DATOS:
+       - t-field con widgets (date, monetary)
+       - Formato condicional de fechas
+       - Colores según estado
+
+    3. ESTADOS Y CONDICIONES:
+       - Mostrar/ocultar elementos según estado
+       - Clases dinámicas según condiciones
+    -->
+
+    <!-- ===================================================================
+         PÁGINA: LISTADO DE PRÉSTAMOS
+         =================================================================== -->
+    <template id="portal_my_loans" name="My Loans">
+        <t t-call="portal.portal_layout">
+            <div class="o_portal_content">
+                <!-- Encabezado -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>
+                        <i class="fa fa-bookmark me-2"/>Mis Préstamos
+                    </h2>
+                    <t t-if="is_member">
+                        <a href="/my/library/profile" class="btn btn-outline-primary">
+                            <i class="fa fa-user me-2"/>Mi Perfil
+                        </a>
+                    </t>
+                </div>
+
+                <!-- Verificar si es miembro -->
+                <t t-if="not is_member">
+                    <div class="alert alert-info">
+                        <h4 class="alert-heading">
+                            <i class="fa fa-info-circle me-2"/>No eres miembro
+                        </h4>
+                        <p class="mb-0">
+                            No tienes una membresía de biblioteca activa.
+                            Contacta con la biblioteca para obtener una.
+                        </p>
+                    </div>
+                </t>
+
+                <t t-else="">
+                    <!-- Resumen rápido -->
+                    <t t-if="member">
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="card text-center h-100">
+                                    <div class="card-body">
+                                        <h3 class="text-primary" t-esc="member.active_loan_count"/>
+                                        <p class="text-muted mb-0">Préstamos Activos</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card text-center h-100">
+                                    <div class="card-body">
+                                        <!--
+                                        t-attf-class permite interpolación de strings.
+                                        #{...} inserta el valor de la expresión.
+                                        -->
+                                        <h3 t-attf-class="#{member.overdue_loan_count > 0 and 'text-danger' or 'text-success'}"
+                                            t-esc="member.overdue_loan_count"/>
+                                        <p class="text-muted mb-0">Vencidos</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card text-center h-100">
+                                    <div class="card-body">
+                                        <h3 t-attf-class="#{member.pending_fees > 0 and 'text-warning' or 'text-success'}">
+                                            <!--
+                                            Formateo de moneda usando el widget.
+                                            También podemos formatear manualmente.
+                                            -->
+                                            $<t t-esc="'%.2f' % member.pending_fees"/>
+                                        </h3>
+                                        <p class="text-muted mb-0">Recargos Pendientes</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+
+                    <!-- Filtros -->
+                    <t t-call="solt_library_portal_frontend.search_filters">
+                        <t t-set="default_url" t-value="'/my/loans'"/>
+                    </t>
+
+                    <!-- Tabla de préstamos -->
+                    <t t-if="loans">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Referencia</th>
+                                        <th>Libro</th>
+                                        <th>Fecha Préstamo</th>
+                                        <th>Fecha Devolución</th>
+                                        <th>Estado</th>
+                                        <th>Recargo</th>
+                                        <th class="text-end">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="loans" t-as="loan">
+                                        <!--
+                                        Clase de fila condicional según estado.
+                                        Préstamos vencidos se resaltan en rojo.
+                                        -->
+                                        <tr t-attf-class="#{loan.state == 'loaned' and loan.days_overdue > 0 and 'table-danger' or ''}">
+                                            <td>
+                                                <a t-att-href="'/my/loans/%s' % loan.id"
+                                                   class="fw-bold text-decoration-none">
+                                                    <t t-esc="loan.reference"/>
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a t-att-href="'/my/library/book/%s' % loan.book_id.id"
+                                                   class="text-decoration-none">
+                                                    <t t-esc="loan.book_id.name"/>
+                                                </a>
+                                            </td>
+                                            <td><span t-field="loan.loan_date"/></td>
+                                            <td>
+                                                <t t-if="loan.actual_return_date">
+                                                    <span t-field="loan.actual_return_date"/>
+                                                </t>
+                                                <t t-else="">
+                                                    <span t-field="loan.expected_return_date"/>
+                                                    <t t-if="loan.state == 'loaned'">
+                                                        <br/>
+                                                        <small class="text-muted">
+                                                            (esperada)
+                                                        </small>
+                                                    </t>
+                                                </t>
+                                            </td>
+                                            <td>
+                                                <!-- Componente de badge de estado -->
+                                                <t t-call="solt_library_portal_frontend.loan_status_badge"/>
+                                            </td>
+                                            <td>
+                                                <t t-if="loan.late_fee > 0">
+                                                    <span class="text-danger fw-bold">
+                                                        $<t t-esc="'%.2f' % loan.late_fee"/>
+                                                    </span>
+                                                    <t t-if="loan.fee_paid">
+                                                        <br/>
+                                                        <small class="text-success">
+                                                            <i class="fa fa-check"/> Pagado
+                                                        </small>
+                                                    </t>
+                                                </t>
+                                                <t t-else="">
+                                                    <span class="text-muted">-</span>
+                                                </t>
+                                            </td>
+                                            <td class="text-end">
+                                                <a t-att-href="'/my/loans/%s' % loan.id"
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    <i class="fa fa-eye"/>
+                                                </a>
+                                                <t t-if="loan.state in ['loaned', 'returned']">
+                                                    <a t-att-href="'/my/loans/%s/download' % loan.id"
+                                                       class="btn btn-sm btn-outline-secondary"
+                                                       title="Descargar recibo">
+                                                        <i class="fa fa-download"/>
+                                                    </a>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Paginación -->
+                        <div class="o_portal_pager d-flex justify-content-center mt-3">
+                            <t t-call="portal.pager"/>
+                        </div>
+                    </t>
+
+                    <!-- Estado vacío -->
+                    <t t-else="">
+                        <div class="text-center py-5">
+                            <i class="fa fa-bookmark-o fa-4x text-muted mb-3"/>
+                            <h4 class="text-muted">No tienes préstamos</h4>
+                            <p class="text-muted">
+                                <t t-if="filterby != 'all'">
+                                    No hay préstamos con el filtro seleccionado.
+                                </t>
+                                <t t-else="">
+                                    Explora nuestro catálogo y solicita tu primer libro.
+                                </t>
+                            </p>
+                            <a href="/my/library" class="btn btn-primary">
+                                <i class="fa fa-book me-2"/>Explorar catálogo
+                            </a>
+                        </div>
+                    </t>
+                </t>
+            </div>
+        </t>
+    </template>
+
+    <!-- ===================================================================
+         PÁGINA: DETALLE DE PRÉSTAMO
+         =================================================================== -->
+    <template id="portal_loan_detail" name="Loan Detail">
+        <t t-call="portal.portal_layout">
+            <div class="o_portal_content">
+                <!-- Encabezado con referencia -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>
+                        Préstamo <span t-field="loan.reference"/>
+                    </h2>
+                    <div>
+                        <t t-call="solt_library_portal_frontend.loan_status_badge"/>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Columna principal -->
+                    <div class="col-lg-8">
+                        <!-- Información del libro -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fa fa-book me-2"/>Libro Prestado
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3 text-center">
+                                        <t t-if="loan.book_id.image_256">
+                                            <img t-att-src="'/web/image/library.book/%s/image_256' % loan.book_id.id"
+                                                 class="img-fluid rounded"
+                                                 t-att-alt="loan.book_id.name"/>
+                                        </t>
+                                        <t t-else="">
+                                            <div class="bg-light rounded p-4">
+                                                <i class="fa fa-book fa-3x text-muted"/>
+                                            </div>
+                                        </t>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <h4>
+                                            <a t-att-href="'/my/library/book/%s' % loan.book_id.id"
+                                               class="text-decoration-none">
+                                                <t t-esc="loan.book_id.name"/>
+                                            </a>
+                                        </h4>
+                                        <p class="text-muted mb-2">
+                                            <t t-esc="loan.book_authors"/>
+                                        </p>
+                                        <table class="table table-sm table-borderless">
+                                            <tr>
+                                                <th style="width: 100px;">ISBN:</th>
+                                                <td t-esc="loan.book_isbn"/>
+                                            </tr>
+                                            <tr>
+                                                <th>Categoría:</th>
+                                                <td t-esc="loan.book_id.category_id.name"/>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fechas del préstamo -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fa fa-calendar me-2"/>Fechas
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 text-center border-end">
+                                        <small class="text-muted d-block">Fecha de Préstamo</small>
+                                        <span class="h5" t-field="loan.loan_date"/>
+                                    </div>
+                                    <div class="col-md-4 text-center border-end">
+                                        <small class="text-muted d-block">
+                                            Devolución Esperada
+                                        </small>
+                                        <span class="h5" t-field="loan.expected_return_date"/>
+                                    </div>
+                                    <div class="col-md-4 text-center">
+                                        <t t-if="loan.actual_return_date">
+                                            <small class="text-muted d-block">
+                                                Fecha de Devolución
+                                            </small>
+                                            <span class="h5 text-success"
+                                                  t-field="loan.actual_return_date"/>
+                                        </t>
+                                        <t t-elif="loan.state == 'loaned'">
+                                            <small class="text-muted d-block">
+                                                Días Restantes
+                                            </small>
+                                            <t t-if="loan.days_remaining &lt; 0">
+                                                <span class="h5 text-danger">
+                                                    <t t-esc="abs(loan.days_remaining)"/> días vencido
+                                                </span>
+                                            </t>
+                                            <t t-elif="loan.days_remaining &lt;= 3">
+                                                <span class="h5 text-warning">
+                                                    <t t-esc="loan.days_remaining"/> días
+                                                </span>
+                                            </t>
+                                            <t t-else="">
+                                                <span class="h5 text-success">
+                                                    <t t-esc="loan.days_remaining"/> días
+                                                </span>
+                                            </t>
+                                        </t>
+                                        <t t-else="">
+                                            <small class="text-muted d-block">Estado</small>
+                                            <span class="h5 text-muted">N/A</span>
+                                        </t>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notas -->
+                        <t t-if="loan.notes">
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fa fa-sticky-note me-2"/>Notas
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <t t-esc="loan.notes"/>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+
+                    <!-- Columna lateral -->
+                    <div class="col-lg-4">
+                        <!-- Recargo (si aplica) -->
+                        <t t-if="loan.late_fee > 0 or loan.days_overdue > 0">
+                            <div class="card mb-4 border-danger">
+                                <div class="card-header bg-danger text-white">
+                                    <h5 class="mb-0">
+                                        <i class="fa fa-exclamation-triangle me-2"/>
+                                        Recargo por Retraso
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="text-center mb-3">
+                                        <span class="display-4 text-danger">
+                                            $<t t-esc="'%.2f' % loan.late_fee"/>
+                                        </span>
+                                    </div>
+                                    <p class="text-muted text-center mb-2">
+                                        <t t-esc="loan.days_overdue"/> días de retraso
+                                        <br/>
+                                        <small>($0.50 por día)</small>
+                                    </p>
+                                    <t t-if="loan.fee_paid">
+                                        <div class="alert alert-success text-center mb-0">
+                                            <i class="fa fa-check-circle me-2"/>Pagado
+                                        </div>
+                                    </t>
+                                    <t t-else="">
+                                        <div class="alert alert-warning text-center mb-0">
+                                            <i class="fa fa-clock-o me-2"/>Pendiente de pago
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+                        </t>
+
+                        <!-- Acciones -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fa fa-cogs me-2"/>Acciones
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <a t-att-href="'/my/loans/%s/download' % loan.id"
+                                       class="btn btn-primary">
+                                        <i class="fa fa-download me-2"/>Descargar Recibo
+                                    </a>
+                                    <a href="/my/loans" class="btn btn-outline-secondary">
+                                        <i class="fa fa-arrow-left me-2"/>Volver a Préstamos
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bibliotecario -->
+                        <t t-if="loan.user_id">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fa fa-user me-2"/>Atendido por
+                                    </h5>
+                                </div>
+                                <div class="card-body text-center">
+                                    <t t-esc="loan.user_id.name"/>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

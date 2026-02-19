@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+    ============================================================================
+    TEMPLATES BASE DEL PORTAL DE BIBLIOTECA
+    ============================================================================
+
+    Este archivo contiene los templates QWeb fundamentales para integrar
+    la biblioteca en el portal de Odoo.
+
+    CONCEPTOS CLAVE PARA LA CAPACITACIÓN:
+    =====================================
+
+    1. HERENCIA DE TEMPLATES:
+       - t-inherit: Hereda de un template existente
+       - t-inherit-mode="extension": Extiende sin reemplazar
+       - xpath: Localiza elementos para modificar
+
+    2. DIRECTIVAS T-:
+       - t-if: Condicional
+       - t-foreach: Iteración
+       - t-esc: Escapar y mostrar texto
+       - t-raw: Mostrar HTML sin escapar
+       - t-att-*: Atributos dinámicos
+       - t-call: Llamar a otro template
+
+    3. INTEGRACIÓN CON EL PORTAL:
+       - portal.portal_layout: Layout base del portal
+       - portal.portal_my_home: Página principal del portal
+       - portal_breadcrumbs: Migas de pan
+    -->
+
+    <!-- ===================================================================
+         EXTENSIÓN DE LA PÁGINA PRINCIPAL DEL PORTAL
+         =================================================================== -->
+    <!--
+    Este template extiende la página "Mi Cuenta" del portal para agregar
+    las secciones de biblioteca.
+
+    HERENCIA CON XPATH:
+    - //div[...]: Localiza el div contenedor
+    - inside: Agrega contenido dentro del elemento
+    - before/after: Agrega antes/después del elemento
+    - replace: Reemplaza el elemento completo
+    -->
+    <template id="portal_my_home_library" name="Portal My Home - Library"
+              inherit_id="portal.portal_my_home" priority="40">
+
+        <!-- Agregar sección de biblioteca después de los documentos -->
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+
+            <!-- Título de sección -->
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="icon" t-value="'fa fa-book'"/>
+                <t t-set="title">Biblioteca</t>
+                <t t-set="text">Explora nuestro catálogo y gestiona tus préstamos</t>
+                <t t-set="url" t-value="'/my/library'"/>
+                <t t-set="placeholder_count" t-value="'book_count'"/>
+            </t>
+
+            <!-- Enlace a mis préstamos (solo si es miembro) -->
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="icon" t-value="'fa fa-bookmark'"/>
+                <t t-set="title">Mis Préstamos</t>
+                <t t-set="text">Ver tus préstamos activos y historial</t>
+                <t t-set="url" t-value="'/my/loans'"/>
+                <t t-set="placeholder_count" t-value="'loan_count'"/>
+            </t>
+
+        </xpath>
+    </template>
+
+    <!-- ===================================================================
+         BREADCRUMBS PARA NAVEGACIÓN
+         =================================================================== -->
+    <!--
+    Los breadcrumbs (migas de pan) ayudan a la navegación.
+    Se muestran en la parte superior de las páginas del portal.
+    -->
+    <template id="portal_breadcrumb_library" name="Library Breadcrumb"
+              inherit_id="portal.portal_breadcrumbs" priority="40">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+
+            <!-- Breadcrumb para catálogo -->
+            <li t-if="page_name == 'library'"
+                t-attf-class="breadcrumb-item #{'active' if not book else ''}">
+                <a t-if="book" href="/my/library">Catálogo</a>
+                <span t-else="">Catálogo</span>
+            </li>
+
+            <!-- Breadcrumb para detalle de libro -->
+            <li t-if="page_name == 'library_book'" class="breadcrumb-item active">
+                <span t-field="book.name"/>
+            </li>
+
+            <!-- Breadcrumb para préstamos -->
+            <li t-if="page_name == 'loans'"
+                t-attf-class="breadcrumb-item #{'active' if not loan else ''}">
+                <a t-if="loan" href="/my/loans">Mis Préstamos</a>
+                <span t-else="">Mis Préstamos</span>
+            </li>
+
+            <!-- Breadcrumb para detalle de préstamo -->
+            <li t-if="page_name == 'loan_detail'" class="breadcrumb-item active">
+                <span t-field="loan.reference"/>
+            </li>
+
+            <!-- Breadcrumb para perfil -->
+            <li t-if="page_name == 'library_profile'" class="breadcrumb-item active">
+                Mi Perfil de Biblioteca
+            </li>
+
+        </xpath>
+    </template>
+
+    <!-- ===================================================================
+         NOTA SOBRE SIDEBAR DEL PORTAL
+         =================================================================== -->
+    <!--
+    Los enlaces de biblioteca se agregan en portal_my_home_library usando
+    portal.portal_docs_entry, que es el método estándar de Odoo para
+    agregar secciones al portal.
+
+    NO agregamos un sidebar separado porque:
+    1. portal_docs_entry ya crea las entradas correctamente
+    2. El sidebar del portal (o_portal_my_details) solo existe en
+       páginas específicas, no en el layout base
+    -->
+
+    <!-- ===================================================================
+         COMPONENTES REUTILIZABLES
+         =================================================================== -->
+
+    <!-- Componente: Tarjeta de libro -->
+    <!--
+    Este template puede ser llamado desde otros templates usando t-call.
+    Es un patrón de reutilización muy útil.
+    -->
+    <template id="book_card" name="Book Card Component">
+        <div class="card h-100 library-book-card">
+            <!-- Imagen del libro -->
+            <div class="card-img-top book-cover-container">
+                <t t-if="book.image_256">
+                    <img t-att-src="'/web/image/library.book/%s/image_256' % book.id"
+                         class="book-cover"
+                         t-att-alt="book.name"/>
+                </t>
+                <t t-else="">
+                    <div class="book-cover-placeholder">
+                        <i class="fa fa-book fa-3x text-muted"/>
+                    </div>
+                </t>
+                <!-- Badge de estado -->
+                <span t-attf-class="badge bg-#{book.get_availability_class()} position-absolute top-0 end-0 m-2">
+                    <t t-esc="book.get_availability_text()"/>
+                </span>
+            </div>
+
+            <!-- Contenido de la tarjeta -->
+            <div class="card-body">
+                <h5 class="card-title text-truncate" t-att-title="book.name">
+                    <t t-esc="book.name"/>
+                </h5>
+                <p class="card-text text-muted small">
+                    <t t-esc="book.format_authors_for_display()"/>
+                </p>
+                <p class="card-text small">
+                    <span class="badge bg-secondary">
+                        <t t-esc="book.category_id.name"/>
+                    </span>
+                </p>
+            </div>
+
+            <!-- Pie de tarjeta -->
+            <div class="card-footer bg-transparent border-top-0">
+                <a t-att-href="book.get_portal_url()"
+                   class="btn btn-primary btn-sm w-100">
+                    Ver Detalles
+                </a>
+            </div>
+        </div>
+    </template>
+
+    <!-- Componente: Badge de estado de préstamo -->
+    <template id="loan_status_badge" name="Loan Status Badge">
+        <t t-if="loan.state == 'draft'">
+            <span class="badge bg-secondary">Borrador</span>
+        </t>
+        <t t-elif="loan.state == 'loaned'">
+            <t t-if="loan.days_overdue > 0">
+                <span class="badge bg-danger">
+                    Vencido (<t t-esc="loan.days_overdue"/> días)
+                </span>
+            </t>
+            <t t-elif="loan.days_remaining &lt;= 3">
+                <span class="badge bg-warning">
+                    Por vencer (<t t-esc="loan.days_remaining"/> días)
+                </span>
+            </t>
+            <t t-else="">
+                <span class="badge bg-primary">Prestado</span>
+            </t>
+        </t>
+        <t t-elif="loan.state == 'returned'">
+            <span class="badge bg-success">Devuelto</span>
+        </t>
+        <t t-elif="loan.state == 'lost'">
+            <span class="badge bg-dark">Perdido</span>
+        </t>
+        <t t-elif="loan.state == 'cancelled'">
+            <span class="badge bg-light text-dark">Cancelado</span>
+        </t>
+    </template>
+
+    <!-- Componente: Barra de búsqueda -->
+    <template id="search_bar" name="Search Bar Component">
+        <div class="library-search-bar mb-4">
+            <form t-att-action="search_url or '/my/library'" method="get" class="row g-2">
+                <!-- Campo de búsqueda -->
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fa fa-search"/>
+                        </span>
+                        <input type="text" name="search" class="form-control"
+                               placeholder="Buscar por título, autor, ISBN..."
+                               t-att-value="search or ''"/>
+                    </div>
+                </div>
+
+                <!-- Selector de ordenamiento -->
+                <div class="col-md-3">
+                    <select name="sortby" class="form-select">
+                        <t t-foreach="searchbar_sortings.items()" t-as="option">
+                            <option t-att-value="option[0]"
+                                    t-att-selected="option[0] == sortby">
+                                <t t-esc="option[1]['label']"/>
+                            </option>
+                        </t>
+                    </select>
+                </div>
+
+                <!-- Botón de búsqueda -->
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fa fa-search me-2"/>Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </template>
+
+    <!-- Componente: Filtros de búsqueda -->
+    <template id="search_filters" name="Search Filters Component">
+        <div class="library-filters mb-3">
+            <div class="btn-group" role="group">
+                <t t-foreach="searchbar_filters.items()" t-as="filter_option">
+                    <a t-attf-href="#{default_url}?filterby=#{filter_option[0]}&amp;sortby=#{sortby}&amp;search=#{search or ''}"
+                       t-attf-class="btn btn-sm #{filter_option[0] == filterby and 'btn-primary' or 'btn-outline-primary'}">
+                        <t t-esc="filter_option[1]['label']"/>
+                    </a>
+                </t>
+            </div>
+        </div>
+    </template>
+
+    <!-- Componente: Paginación -->
+    <template id="pagination_component" name="Pagination Component">
+        <!--
+        NOTA: Este componente custom fue reemplazado por el pager nativo
+        de Odoo (portal.pager) que ya maneja toda la lógica de paginación.
+        Uso: <t t-call="portal.pager"/>
+
+        Se mantiene como referencia didáctica con la sintaxis QWeb correcta.
+        IMPORTANTE: QWeb NO soporta diccionarios literales {} en expresiones.
+        Usar notación de corchetes como lo hace Odoo nativo.
+        -->
+        <t t-if="pager and pager['page_count'] > 1">
+            <nav aria-label="Navegación de páginas">
+                <ul class="pagination justify-content-center">
+                    <!-- Anterior -->
+                    <li t-attf-class="page-item #{'disabled' if pager['page']['num'] == 1 else ''}">
+                        <a class="page-link"
+                           t-att-href="pager['page_previous']['url'] if pager['page']['num'] != 1 else None">
+                            <i class="fa fa-chevron-left"/>
+                        </a>
+                    </li>
+
+                    <!-- Páginas -->
+                    <t t-foreach="pager['pages']" t-as="page_info">
+                        <li t-attf-class="page-item #{'active' if page_info['num'] == pager['page']['num'] else ''}">
+                            <a class="page-link" t-att-href="page_info['url']"
+                               t-out="page_info['num']"/>
+                        </li>
+                    </t>
+
+                    <!-- Siguiente -->
+                    <li t-attf-class="page-item #{'disabled' if pager['page']['num'] == pager['page_count'] else ''}">
+                        <a class="page-link"
+                           t-att-href="pager['page_next']['url'] if pager['page']['num'] != pager['page_count'] else None">
+                            <i class="fa fa-chevron-right"/>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </t>
+    </template>
+
+</odoo>

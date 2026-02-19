@@ -32,9 +32,9 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td t-field="doc.book_id.name"/>
-                                    <td t-field="doc.book_isbn"/>
-                                    <td t-field="doc.book_authors"/>
+                                    <td><span t-field="doc.book_id"/></td>
+                                    <td><span t-field="doc.book_isbn"/></td>
+                                    <td><span t-field="doc.book_authors"/></td>
                                 </tr>
                             </tbody>
                         </table>
