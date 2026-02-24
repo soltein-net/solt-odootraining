@@ -241,6 +241,7 @@ class LibraryLoan(models.Model):
                 summary=f'Pending return: {loan.book_id.name}',
                 user_id=loan.user_id.id
             )
+        return True
 
     def action_return(self):
         for loan in self:
@@ -260,6 +261,7 @@ class LibraryLoan(models.Model):
                 )
             else:
                 loan.message_post(body='📗 Book returned on time')
+        return True
 
     def action_mark_lost(self):
         for loan in self:
@@ -268,12 +270,14 @@ class LibraryLoan(models.Model):
             loan.write({'state': 'lost'})
             loan.message_post(body='⚠️ Book marked as lost')
             loan.activity_ids.action_done()
+        return True
 
     def action_cancel(self):
         for loan in self:
             if loan.state not in ['draft']:
                 raise UserError('Only drafts can be cancelled')
             loan.write({'state': 'cancelled'})
+        return True
 
     @api.model
     def _cron_check_due_dates(self):
