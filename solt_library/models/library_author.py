@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, api
 from datetime import date
+
+from odoo import api, fields, models
+from odoo.exceptions import ValidationError
+
 
 class LibraryAuthor(models.Model):
     _name = 'library.author'
@@ -47,7 +50,7 @@ class LibraryAuthor(models.Model):
         for author in self:
             if author.death_date and author.birth_date:
                 if author.death_date < author.birth_date:
-                    raise models.ValidationError(
+                    raise ValidationError(
                         'Death date cannot be earlier than birth date'
                     )
 

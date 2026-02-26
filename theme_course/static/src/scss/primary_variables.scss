@@ -1,0 +1,178 @@
+//-------------------------------------------
+// Presets
+//-------------------------------------------
+
+$o-website-values-palettes: (
+        (
+                'font-size-base': 1rem,
+                'body-line-height': 1.5,
+                'headings-line-height': 1.2,
+                'paragraph-margin-top': 0,
+                'paragraph-margin-bottom': 1rem,
+                'headings-margin-top': 0,
+                'headings-margin-bottom': 0.5rem,
+                'display-1-font-size': null, // Default to BS
+                'display-2-font-size': null, // Default to BS
+                'display-3-font-size': null, // Default to BS
+                'display-4-font-size': null, // Default to BS
+                'google-fonts': null,
+                'google-local-fonts': null,
+                'body-image': null,
+                'body-image-type': 'image', // 'image' or 'pattern'
+                'layout': 'full', // 'full' / 'boxed'
+                'color-palettes-name': 'course-2', // Default to the individual variables for each color palette type
+                'btn-primary-outline': false,
+                'btn-secondary-outline': false,
+                'btn-primary-flat': false,
+                'btn-secondary-flat': false,
+                'btn-primary-outline-border-width': 1px,
+                'btn-secondary-outline-border-width': 1px,
+                'link-underline': 'hover', // 'never' / 'hover' / 'always'
+                'btn-ripple': false,
+                'btn-padding-y': null, // Default to BS
+                'btn-padding-x': null, // Default to BS
+                'btn-font-size': null, // Default to BS
+                'btn-padding-y-sm': null, // Default to portal value
+                'btn-padding-x-sm': null, // Default to BS
+                'btn-font-size-sm': null, // Default to BS
+                'btn-padding-y-lg': null, // Default to BS
+                'btn-padding-x-lg': null, // Default to BS
+                'btn-font-size-lg': null, // Default to BS
+                'btn-border-width': null, // Default to BS
+                'btn-border-radius': null, // Default to BS
+                'btn-border-radius-sm': null, // Default to BS
+                'btn-border-radius-lg': null, // Default to BS
+                'input-padding-y': null, // Default to BS
+                'input-padding-x': null, // Default to BS
+                'input-font-size': null, // Default to BS
+                'input-padding-y-sm': null, // Default to BS
+                'input-padding-x-sm': null, // Default to BS
+                'input-font-size-sm': null, // Default to BS
+                'input-padding-y-lg': null, // Default to BS
+                'input-padding-x-lg': null, // Default to BS
+                'input-font-size-lg': null, // Default to BS
+                'input-border-width': null, // Default to BS
+                'input-border-radius': null, // Default to BS
+                'input-border-radius-sm': null, // Default to BS
+                'input-border-radius-lg': null, // Default to BS
+                'font': null, // Default to body-font
+                'headings-font': 'Raleway',
+                'navbar-font': null,
+                'buttons-font': null,
+                'menu-gradient': null,
+                'menu-secondary-gradient': null,
+                'footer-gradient': null,
+                'copyright-gradient': null,
+                'header-template': 'default', // 'default' / 'hamburger' / 'vertical' / 'sidebar'
+                'header-font-size': null, // Default to BS (normal font-size)
+                'header-text-color': null,
+                'header-links-style': 'default', // 'default' / 'fill' / 'outline' / 'pills' / 'block' / 'border-bottom'
+                'logo-height': null, // Default to navbar height (see portal)
+                'hamburger-position': 'left', // 'left' / 'center' / 'right'
+                'hamburger-position-mobile': 'left', // 'left' / 'center' / 'right'
+                'menu-border-width': null, // Default to classes used on the template
+                'menu-border-style': solid, // Default to classes used on the template
+                'menu-border-radius': null, // Default to classes used on the template
+                'menu-box-shadow': null, // Default to classes used on the template
+                'sidebar-width': 18.75rem, // 300px
+                'footer-template': 'default',
+                'footer-effect': null, // null / 'slideout_slide_hover' / 'slideout_shadow'
+                'footer-scrolltop': false,
+                'use-custom-spacing': true,
+                'custom-section-spacing': 2rem, // Custom spacing for sections (e.g., 3rem, 60px)
+        ),
+);
+
+//-------------------------------------------
+// Fonts
+//-------------------------------------------
+
+$o-theme-font-configs: (
+        'Assistant': (
+                'family': ('Assistant', sans-serif),
+                'url': 'Assistant:300,300i,400,400i,700,700i',
+        ),
+        'Abel': (
+                'family': ('Abel', sans-serif),
+                'url': 'Abel:300,300i,400,400i,700,700i',
+        ),
+        'Cinzel': (
+                'family': ('Cinzel', serif),
+                'url': 'Cinzel:300,300i,400,400i,700,700i',
+        ),
+        'Old Standard TT': (
+                'family': ('Old Standard TT', serif),
+                'url': 'Old+Standard+TT:300,300i,400,400i,700,700i',
+        ),
+        'Source Sans Pro': (
+                'family': ('Source Sans Pro', sans-serif),
+                'url': 'Source+Sans+Pro:300,300i,400,400i,700,700i',
+        ),
+        'Raleway': (
+                'family': ('Raleway', sans-serif),
+        ),
+);
+
+//-------------------------------------------
+// Colors
+//-------------------------------------------
+
+$o-color-palettes: map-merge($o-color-palettes,
+        (
+                'course-1': (
+                        'o-color-1': #780000,
+                        'o-color-2': #669bbc,
+                        'o-color-3': #c1121f,
+                        'o-color-4': #ffffff,
+                        'o-color-5': #003049,
+                ),
+                'course-2': (
+                        'o-color-1': #81b29a,
+                        'o-color-2': #e07a5f,
+                        'o-color-3': #f2cc8f,
+                        'o-color-4': #f4f1de,
+                        'o-color-5': #3d405b,
+                        'footer': 4,
+                ),
+                'course-3': (
+                        'o-color-1': #ff4823,
+                        'o-color-2': #e6ff2b,
+                        'o-color-3': #898a8d,
+                        'o-color-4': #ffffff,
+                        'o-color-5': #0b4650,
+                ),
+                'course-4': (
+                        'o-color-1': #f77f00,
+                        'o-color-2': #d62828,
+                        'o-color-3': #fcbf49,
+                        'o-color-4': #eae2b7,
+                        'o-color-5': #003049,
+                ),
+        )
+);
+
+$o-selected-color-palettes-names: append($o-selected-color-palettes-names, 'course-1');
+
+$o-color-palettes-compatibility-indexes: (
+        1: 'course-1',
+        2: 'course-2',
+        3: 'course-3',
+        4: 'course-4',
+        5: 'generic-1',
+        6: 'generic-2',
+        7: 'generic-3',
+        8: 'generic-4',
+        9: 'generic-5',
+        10: 'generic-6',
+        11: 'generic-7',
+        12: 'generic-8',
+        13: 'generic-9',
+        14: 'generic-10',
+        15: 'generic-11',
+        16: 'generic-12',
+        17: 'generic-13',
+        18: 'generic-14',
+        19: 'generic-15',
+        20: 'generic-16',
+        21: 'generic-17',
+);

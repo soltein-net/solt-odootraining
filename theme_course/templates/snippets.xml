@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="theme_course_snippets" name="Theme Course Snippets" inherit_id="website.snippets">
+            <xpath expr="//div[@id='snippet_structure']" position="before">
+                <div id="snippet_theme_course" class="o_panel">
+                    <div class="o_panel_header">Theme Course</div>
+                    <div class="o_panel_body">
+                        <t t-snippet="theme_course.s_features_columns" string="Features Columns"
+                           t-thumbnail="/website/static/src/img/snippets_thumbs/s_three_columns.svg">
+                            <keywords>features, columns</keywords>
+                        </t>
+                    </div>
+                </div>
+            </xpath>
+        </template>
+    </data>
+</odoo>

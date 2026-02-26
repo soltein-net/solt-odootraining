@@ -1,0 +1,13 @@
+section.custom-separation {
+  @if o-website-value('use-custom-spacing') {
+    margin-top: o-website-value('custom-section-spacing');
+    margin-bottom: o-website-value('custom-section-spacing');
+  }
+}
+
+main section {
+  @if o-website-value('use-custom-spacing') {
+    margin-top: o-website-value('custom-section-spacing');
+    margin-bottom: o-website-value('custom-section-spacing');
+  }
+}

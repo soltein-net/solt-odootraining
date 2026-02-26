@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="s_features_columns" name="Features Columns">
+            <section class="s_features_columns pb32 pt32 o_cc o_cc2" data-gap="0" data-performance="slow">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12 header">
+                            <h1 class="display-3 h-title text-center">Beautiful interfaces</h1>
+                            <p class="lead p-subtle text-center">Bootsrap inspired features</p>
+                            <hr class="title-separator mb-4"/>
+                        </div>
+                    </div>
+                    <div class="row body gap-0">
+                        <div class="col-sm-6 col-lg-4 mb-5">
+                            <div class="text-center px-md-5">
+                                <div class="mb-3">
+                                    <i class="fa fa-2x fa-quora"></i>
+                                </div>
+                                <p>Unify is an <span class="fw-bold">incredibly beautiful</span> and mobile-first
+                                    project on the web.</p>
+                            </div>
+                        </div>
+                        <!-- End Col -->
+                        <div class="col-sm-6 col-lg-4 mb-5">
+                            <div class="text-center px-md-5">
+                                <div class="mb-3">
+                                    <i class="fa fa-2x fa-telegram"></i>
+                                </div>
+                                <p>Unify is not only for developers but also for designers, and <span class="fw-bold">
+                                    includes a Figma</span> file.</p>
+                            </div>
+                        </div>
+                        <!-- End Col -->
+                        <div class="col-sm-6 col-lg-4 mb-5">
+                            <div class="text-center px-md-5">
+                                <div class="mb-3">
+                                    <i class="fa fa-2x fa-arrows"></i>
+                                </div>
+                                <p><span class="fw-bold">Whether you're a startup</span> or a global enterprise, learn
+                                    how to integrate with Unify.</p>
+                            </div>
+                        </div>
+                        <!-- End Col -->
+                        <div class="col-sm-6 col-lg-4 mb-5 mb-lg-0">
+                            <div class="text-center px-md-5">
+                                <div class="mb-3">
+                                    <i class="fa fa-2x fa-balance-scale"></i>
+                                </div>
+                                <p>Use Unify thoroughly thought and automated libraries to <span class="fw-bold">manage
+                                    your businesses</span>.</p>
+                            </div>
+                        </div>
+                        <!-- End Col -->
+                        <div class="col-sm-6 col-lg-4 mb-5 mb-sm-0">
+                            <div class="text-center px-md-5">
+                                <div class="mb-3">
+                                    <i class="fa fa-2x fa-cog"></i>
+                                </div>
+                                <p>Unify template can be <span class="fw-bold">easily customized</span> with its
+                                    cutting-edge components.</p>
+                            </div>
+                        </div>
+                        <!-- End Col -->
+                        <div class="col-sm-6 col-lg-4">
+                            <div class="text-center px-md-5">
+                                <div class="mb-3">
+                                    <i class="fa fa-2x fa-deaf"></i>
+                                </div>
+                                <p>Every component and plugin is <span class="fw-bold">well documented</span> with live
+                                    examples.</p>
+                            </div>
+                        </div>
+                        <!-- End Col -->
+                    </div>
+                </div>
+            </section>
+        </template>
+        <template id="s_features_columns_options" name="Features Columns Options" inherit_id="website.snippet_options">
+            <xpath expr="." position="inside">
+                <div data-name="Features Columns Header" data-selector=".s_features_columns div.header">
+                    <we-select string="Title Size" data-apply-to="h1.h-title">
+                        <we-button data-select-class="display-1">D1</we-button>
+                        <we-button data-select-class="display-2">D2</we-button>
+                        <we-button data-select-class="display-3">D3</we-button>
+                        <we-button data-select-class="display-4">D4</we-button>
+                        <we-button data-select-class="display-5">D5</we-button>
+                        <we-button data-select-class="display-6">D6</we-button>
+                    </we-select>
+                    <we-select string="Content Align" data-apply-to="h1.h-title,p.lead">
+                        <we-button data-select-class="text-start">Left</we-button>
+                        <we-button data-select-class="text-center">Center</we-button>
+                        <we-button data-select-class="text-end">Right</we-button>
+                    </we-select>
+                    <we-checkbox data-apply-to="hr" string="Display Separator" data-select-class="d-none|"/>
+                </div>
+                <div data-name="Features Columns" data-selector=".s_features_columns" data-js="FeaturesColumnsGap">
+                    <we-select string="Performance" data-attribute-name="performance" data-no-preview="true">
+                        <we-button data-select-data-attribute="slow">Slow</we-button>
+                        <we-button data-select-data-attribute="high">High</we-button>
+                    </we-select>
+                    <we-row string="Padding (Top, Bottom)">
+                        <we-input data-select-style="" data-css-property="padding-top" data-unit="px"
+                                  data-name="padding_top_opt"/>
+                        <we-input data-select-style="" data-css-property="padding-bottom" data-unit="px"
+                                  data-name="padding_bottom_opt"/>
+                    </we-row>
+                    <we-range string="Gap" class="" data-customize-gap="" data-select-data-attribute=""
+                              data-attribute-name="gap" data-param="gap" data-min="0" data-max="5" data-step="1"/>
+                </div>
+            </xpath>
+        </template>
+    </data>
+</odoo>

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, api
-from odoo.exceptions import ValidationError
 from datetime import date
+
 from dateutil.relativedelta import relativedelta
+from odoo import api, fields, models
 
 
 class LibraryMember(models.Model):
