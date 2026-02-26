@@ -463,7 +463,7 @@ def main():
     # Test login
     logger.info("=" * 80)
     logger.info("Testing connections...")
-    #manager.test_login()
+    manager.test_login()
     #manager.update_module_list()
     #results = manager.module_status(['purchase'])
 

@@ -1,0 +1,1050 @@
+{
+	"info": {
+		"_postman_id": "83d9071d-626d-41ed-9800-78570ed11a7c",
+		"name": "Odoo REST Api - solt_library",
+		"description": "Colección adaptada para el servidor local OdootrainingNleon (localhost:8069) y el módulo solt_library. Ejecuta primero 'Obtener API Key' para inicializar la variable {{api_key}} automáticamente.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "28148668"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8069",
+			"type": "string",
+			"description": "URL base del servidor Odoo"
+		},
+		{
+			"key": "webhook_devolucion_url",
+			"value": "http://localhost:8069/web/hook/REEMPLAZAR_CON_ID",
+			"type": "string",
+			"description": "URL generada por Odoo para el webhook Caso 1 - Devolucion. Reemplazar REEMPLAZAR_CON_ID con el ID del registro en Odoo."
+		},
+		{
+			"key": "webhook_stock_url",
+			"value": "http://localhost:8069/web/hook/REEMPLAZAR_CON_ID",
+			"type": "string",
+			"description": "URL generada por Odoo para el webhook Caso 2 - Stock. Reemplazar REEMPLAZAR_CON_ID con el ID del registro en Odoo."
+		},
+		{
+			"key": "db_name",
+			"value": "OdootrainingNleon",
+			"type": "string",
+			"description": "Nombre de la base de datos"
+		},
+		{
+			"key": "odoo_login",
+			"value": "admin",
+			"type": "string",
+			"description": "Usuario Odoo"
+		},
+		{
+			"key": "odoo_password",
+			"value": "admin",
+			"type": "string",
+			"description": "Contraseña del usuario Odoo"
+		},
+		{
+			"key": "api_key",
+			"value": "",
+			"type": "string",
+			"description": "Se obtiene automáticamente al ejecutar el request '1.1 Obtener API Key'"
+		}
+	],
+	"item": [
+		{
+			"name": "1. Autenticacion",
+			"description": "Paso obligatorio. Ejecutar primero para obtener el api-key que se usará en todos los demás requests.",
+			"item": [
+				{
+					"name": "1.1 Obtener API Key",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData && jsonData['api-key']) {",
+									"    pm.collectionVariables.set('api_key', jsonData['api-key']);",
+									"    console.log('API Key guardada en variable de coleccion:', jsonData['api-key']);",
+									"    pm.test('Autenticacion exitosa', function () {",
+									"        pm.expect(jsonData['Status']).to.eql('auth successful');",
+									"    });",
+									"} else {",
+									"    console.error('Error: no se recibio api-key. Verifica credenciales.');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "db",
+								"value": "{{db_name}}",
+								"type": "text",
+								"description": "Nombre de la base de datos Odoo"
+							},
+							{
+								"key": "login",
+								"value": "{{odoo_login}}",
+								"type": "text",
+								"description": "Usuario Odoo"
+							},
+							{
+								"key": "password",
+								"value": "{{odoo_password}}",
+								"type": "text",
+								"description": "Contraseña del usuario"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/odoo_connect",
+							"host": ["{{base_url}}"],
+							"path": ["odoo_connect"]
+						},
+						"description": "Autentica el usuario y retorna un api-key UUID. El script de Test guarda automáticamente el api-key en la variable de colección {{api_key}}."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. Libros (library.book)",
+			"description": "CRUD sobre el modelo library.book. Requiere que el modelo esté habilitado en Ajustes > REST API > Connection API.",
+			"item": [
+				{
+					"name": "2.1 GET Todos los Libros",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "login",
+								"value": "{{odoo_login}}",
+								"type": "text"
+							},
+							{
+								"key": "password",
+								"value": "{{odoo_password}}",
+								"type": "text"
+							},
+							{
+								"key": "api-key",
+								"value": "{{api_key}}",
+								"type": "text",
+								"description": "Obtenido en el paso 1.1"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fields\": [\"name\", \"isbn\", \"available_qty\", \"loaned_qty\", \"state\", \"category_id\", \"language\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/send_request?model=library.book",
+							"host": ["{{base_url}}"],
+							"path": ["send_request"],
+							"query": [
+								{
+									"key": "model",
+									"value": "library.book"
+								}
+							]
+						},
+						"description": "Retorna todos los libros con los campos seleccionados. Habilitar GET en Connection API para library.book."
+					},
+					"response": []
+				},
+				{
+					"name": "2.2 GET Libro por ID",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "login",
+								"value": "{{odoo_login}}",
+								"type": "text"
+							},
+							{
+								"key": "password",
+								"value": "{{odoo_password}}",
+								"type": "text"
+							},
+							{
+								"key": "api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fields\": [\"name\", \"isbn\", \"description\", \"pages\", \"publisher\", \"publication_date\", \"language\", \"category_id\", \"author_ids\", \"total_qty\", \"available_qty\", \"loaned_qty\", \"state\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/send_request?model=library.book&Id=1",
+							"host": ["{{base_url}}"],
+							"path": ["send_request"],
+							"query": [
+								{
+									"key": "model",
+									"value": "library.book"
+								},
+								{
+									"key": "Id",
+									"value": "1",
+									"description": "Cambiar por el ID real del libro"
+								}
+							]
+						},
+						"description": "Retorna el detalle completo de un libro específico. Cambiar el valor de Id en la URL."
+					},
+					"response": []
+				},
+				{
+					"name": "2.3 POST Crear Libro",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "login",
+								"value": "{{odoo_login}}",
+								"type": "text"
+							},
+							{
+								"key": "password",
+								"value": "{{odoo_password}}",
+								"type": "text"
+							},
+							{
+								"key": "api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fields\": [\"name\", \"isbn\", \"total_qty\", \"language\", \"category_id\"],\n    \"values\": {\n        \"name\": \"Clean Code\",\n        \"isbn\": \"9780132350884\",\n        \"total_qty\": 3,\n        \"language\": \"en\",\n        \"category_id\": 1\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/send_request?model=library.book",
+							"host": ["{{base_url}}"],
+							"path": ["send_request"],
+							"query": [
+								{
+									"key": "model",
+									"value": "library.book"
+								}
+							]
+						},
+						"description": "Crea un nuevo libro. Ajustar category_id con un ID válido de library.category. Habilitar POST en Connection API para library.book."
+					},
+					"response": []
+				},
+				{
+					"name": "2.4 PUT Actualizar Libro",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "login",
+								"value": "{{odoo_login}}",
+								"type": "text"
+							},
+							{
+								"key": "password",
+								"value": "{{odoo_password}}",
+								"type": "text"
+							},
+							{
+								"key": "api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fields\": [\"name\", \"total_qty\"],\n    \"values\": {\n        \"name\": \"Clean Code (2da Edicion)\",\n        \"total_qty\": 5\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/send_request?model=library.book&Id=1",
+							"host": ["{{base_url}}"],
+							"path": ["send_request"],
+							"query": [
+								{
+									"key": "model",
+									"value": "library.book"
+								},
+								{
+									"key": "Id",
+									"value": "1",
+									"description": "ID del libro a actualizar"
+								}
+							]
+						},
+						"description": "Actualiza campos de un libro existente. Habilitar PUT en Connection API para library.book."
+					},
+					"response": []
+				},
+				{
+					"name": "2.5 DELETE Eliminar Libro",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "login",
+								"value": "{{odoo_login}}",
+								"type": "text"
+							},
+							{
+								"key": "password",
+								"value": "{{odoo_password}}",
+								"type": "text"
+							},
+							{
+								"key": "api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/send_request?model=library.book&Id=1",
+							"host": ["{{base_url}}"],
+							"path": ["send_request"],
+							"query": [
+								{
+									"key": "model",
+									"value": "library.book"
+								},
+								{
+									"key": "Id",
+									"value": "1",
+									"description": "ID del libro a eliminar (IRREVERSIBLE)"
+								}
+							]
+						},
+						"description": "Elimina un libro. PRECAUCIÓN: operación irreversible. Habilitar DELETE en Connection API para library.book."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. Autores (library.author)",
+			"description": "Lectura del catálogo de autores.",
+			"item": [
+				{
+					"name": "3.1 GET Todos los Autores",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "login",
+								"value": "{{odoo_login}}",
+								"type": "text"
+							},
+							{
+								"key": "password",
+								"value": "{{odoo_password}}",
+								"type": "text"
+							},
+							{
+								"key": "api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fields\": [\"name\", \"nationality\", \"book_count\", \"birth_date\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/send_request?model=library.author",
+							"host": ["{{base_url}}"],
+							"path": ["send_request"],
+							"query": [
+								{
+									"key": "model",
+									"value": "library.author"
+								}
+							]
+						},
+						"description": "Lista todos los autores con su conteo de libros."
+					},
+					"response": []
+				},
+				{
+					"name": "3.2 GET Autor por ID",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "login",
+								"value": "{{odoo_login}}",
+								"type": "text"
+							},
+							{
+								"key": "password",
+								"value": "{{odoo_password}}",
+								"type": "text"
+							},
+							{
+								"key": "api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fields\": [\"name\", \"nationality\", \"birth_date\", \"death_date\", \"biography\", \"website\", \"book_count\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/send_request?model=library.author&Id=1",
+							"host": ["{{base_url}}"],
+							"path": ["send_request"],
+							"query": [
+								{
+									"key": "model",
+									"value": "library.author"
+								},
+								{
+									"key": "Id",
+									"value": "1",
+									"description": "Cambiar por ID real del autor"
+								}
+							]
+						},
+						"description": "Detalle completo de un autor específico."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. Miembros (library.member)",
+			"description": "Gestión de miembros de la biblioteca.",
+			"item": [
+				{
+					"name": "4.1 GET Todos los Miembros",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "login",
+								"value": "{{odoo_login}}",
+								"type": "text"
+							},
+							{
+								"key": "password",
+								"value": "{{odoo_password}}",
+								"type": "text"
+							},
+							{
+								"key": "api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fields\": [\"partner_id\", \"code\", \"membership_type\", \"state\", \"active_loan_count\", \"overdue_loan_count\", \"pending_fees\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/send_request?model=library.member",
+							"host": ["{{base_url}}"],
+							"path": ["send_request"],
+							"query": [
+								{
+									"key": "model",
+									"value": "library.member"
+								}
+							]
+						},
+						"description": "Lista todos los miembros con su estado de cuenta y préstamos activos."
+					},
+					"response": []
+				},
+				{
+					"name": "4.2 GET Miembro por ID",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "login",
+								"value": "{{odoo_login}}",
+								"type": "text"
+							},
+							{
+								"key": "password",
+								"value": "{{odoo_password}}",
+								"type": "text"
+							},
+							{
+								"key": "api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fields\": [\"partner_id\", \"code\", \"membership_type\", \"state\", \"registration_date\", \"expiration_date\", \"max_loans\", \"loan_days\", \"active_loan_count\", \"overdue_loan_count\", \"pending_fees\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/send_request?model=library.member&Id=1",
+							"host": ["{{base_url}}"],
+							"path": ["send_request"],
+							"query": [
+								{
+									"key": "model",
+									"value": "library.member"
+								},
+								{
+									"key": "Id",
+									"value": "1",
+									"description": "Cambiar por ID real del miembro"
+								}
+							]
+						},
+						"description": "Detalle completo de un miembro: membresía, límites de préstamo y estado de cuenta."
+					},
+					"response": []
+				},
+				{
+					"name": "4.3 POST Crear Miembro",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "login",
+								"value": "{{odoo_login}}",
+								"type": "text"
+							},
+							{
+								"key": "password",
+								"value": "{{odoo_password}}",
+								"type": "text"
+							},
+							{
+								"key": "api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fields\": [\"partner_id\", \"membership_type\"],\n    \"values\": {\n        \"partner_id\": 3,\n        \"membership_type\": \"regular\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/send_request?model=library.member",
+							"host": ["{{base_url}}"],
+							"path": ["send_request"],
+							"query": [
+								{
+									"key": "model",
+									"value": "library.member"
+								}
+							]
+						},
+						"description": "Crea un nuevo miembro. El campo 'partner_id' debe ser un ID válido de res.partner. El código (MBR-XXXXX) se genera automáticamente. Tipos válidos: student, regular, premium, lifetime."
+					},
+					"response": []
+				},
+				{
+					"name": "4.4 PUT Actualizar Tipo de Membresía",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "login",
+								"value": "{{odoo_login}}",
+								"type": "text"
+							},
+							{
+								"key": "password",
+								"value": "{{odoo_password}}",
+								"type": "text"
+							},
+							{
+								"key": "api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fields\": [\"membership_type\"],\n    \"values\": {\n        \"membership_type\": \"premium\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/send_request?model=library.member&Id=1",
+							"host": ["{{base_url}}"],
+							"path": ["send_request"],
+							"query": [
+								{
+									"key": "model",
+									"value": "library.member"
+								},
+								{
+									"key": "Id",
+									"value": "1",
+									"description": "ID del miembro a actualizar"
+								}
+							]
+						},
+						"description": "Actualiza la membresía de un miembro. Tipos: student (3 préstamos/14 días), regular (5/21), premium (10/30), lifetime (15/45)."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "5. Prestamos (library.loan)",
+			"description": "Gestión completa del ciclo de préstamos: creación, confirmación, devolución.",
+			"item": [
+				{
+					"name": "5.1 GET Todos los Prestamos",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "login",
+								"value": "{{odoo_login}}",
+								"type": "text"
+							},
+							{
+								"key": "password",
+								"value": "{{odoo_password}}",
+								"type": "text"
+							},
+							{
+								"key": "api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fields\": [\"reference\", \"member_id\", \"book_id\", \"loan_date\", \"expected_return_date\", \"state\", \"days_overdue\", \"late_fee\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/send_request?model=library.loan",
+							"host": ["{{base_url}}"],
+							"path": ["send_request"],
+							"query": [
+								{
+									"key": "model",
+									"value": "library.loan"
+								}
+							]
+						},
+						"description": "Lista todos los préstamos con su estado, días de mora y multa calculada."
+					},
+					"response": []
+				},
+				{
+					"name": "5.2 GET Prestamo por ID",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "login",
+								"value": "{{odoo_login}}",
+								"type": "text"
+							},
+							{
+								"key": "password",
+								"value": "{{odoo_password}}",
+								"type": "text"
+							},
+							{
+								"key": "api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fields\": [\"reference\", \"member_id\", \"book_id\", \"book_isbn\", \"book_authors\", \"loan_date\", \"expected_return_date\", \"actual_return_date\", \"days_remaining\", \"days_overdue\", \"late_fee\", \"fee_paid\", \"state\", \"notes\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/send_request?model=library.loan&Id=1",
+							"host": ["{{base_url}}"],
+							"path": ["send_request"],
+							"query": [
+								{
+									"key": "model",
+									"value": "library.loan"
+								},
+								{
+									"key": "Id",
+									"value": "1",
+									"description": "Cambiar por ID real del préstamo"
+								}
+							]
+						},
+						"description": "Detalle completo de un préstamo: fechas, días restantes, mora acumulada y estado de pago."
+					},
+					"response": []
+				},
+				{
+					"name": "5.3 POST Crear Prestamo (borrador)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "login",
+								"value": "{{odoo_login}}",
+								"type": "text"
+							},
+							{
+								"key": "password",
+								"value": "{{odoo_password}}",
+								"type": "text"
+							},
+							{
+								"key": "api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fields\": [\"member_id\", \"book_id\", \"notes\"],\n    \"values\": {\n        \"member_id\": 1,\n        \"book_id\": 1,\n        \"notes\": \"Préstamo creado via REST API\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/send_request?model=library.loan",
+							"host": ["{{base_url}}"],
+							"path": ["send_request"],
+							"query": [
+								{
+									"key": "model",
+									"value": "library.loan"
+								}
+							]
+						},
+						"description": "Crea un préstamo en estado 'draft'. La referencia (LOAN-YYYY-XXXXX) y la fecha esperada de devolución se calculan automáticamente según la membresía del miembro. Ajustar member_id y book_id con IDs válidos."
+					},
+					"response": []
+				},
+				{
+					"name": "5.4 PUT Confirmar Prestamo (loaned)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "login",
+								"value": "{{odoo_login}}",
+								"type": "text"
+							},
+							{
+								"key": "password",
+								"value": "{{odoo_password}}",
+								"type": "text"
+							},
+							{
+								"key": "api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fields\": [\"state\"],\n    \"values\": {\n        \"state\": \"loaned\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/send_request?model=library.loan&Id=1",
+							"host": ["{{base_url}}"],
+							"path": ["send_request"],
+							"query": [
+								{
+									"key": "model",
+									"value": "library.loan"
+								},
+								{
+									"key": "Id",
+									"value": "1",
+									"description": "ID del préstamo a confirmar"
+								}
+							]
+						},
+						"description": "Confirma el préstamo cambiando el estado a 'loaned'. Estados válidos: draft, loaned, returned, lost, cancelled."
+					},
+					"response": []
+				},
+				{
+					"name": "5.5 PUT Registrar Devolucion",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "login",
+								"value": "{{odoo_login}}",
+								"type": "text"
+							},
+							{
+								"key": "password",
+								"value": "{{odoo_password}}",
+								"type": "text"
+							},
+							{
+								"key": "api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fields\": [\"state\", \"actual_return_date\", \"fee_paid\"],\n    \"values\": {\n        \"state\": \"returned\",\n        \"actual_return_date\": \"2026-02-26\",\n        \"fee_paid\": true\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/send_request?model=library.loan&Id=1",
+							"host": ["{{base_url}}"],
+							"path": ["send_request"],
+							"query": [
+								{
+									"key": "model",
+									"value": "library.loan"
+								},
+								{
+									"key": "Id",
+									"value": "1",
+									"description": "ID del préstamo a devolver"
+								}
+							]
+						},
+						"description": "Registra la devolución de un libro. Actualizar 'actual_return_date' con la fecha real de devolución."
+					},
+					"response": []
+				},
+				{
+					"name": "5.6 DELETE Cancelar Prestamo",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "login",
+								"value": "{{odoo_login}}",
+								"type": "text"
+							},
+							{
+								"key": "password",
+								"value": "{{odoo_password}}",
+								"type": "text"
+							},
+							{
+								"key": "api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/send_request?model=library.loan&Id=1",
+							"host": ["{{base_url}}"],
+							"path": ["send_request"],
+							"query": [
+								{
+									"key": "model",
+									"value": "library.loan"
+								},
+								{
+									"key": "Id",
+									"value": "1",
+									"description": "ID del préstamo a eliminar (solo borrador)"
+								}
+							]
+						},
+						"description": "Elimina un préstamo. PRECAUCIÓN: operación irreversible. Recomendado solo para préstamos en estado draft."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "6. Webhooks - Receptor (Odoo Nativo)",
+			"description": "Pruebas de los webhooks configurados directamente en Odoo via Ajustes > Técnico > Automatizaciones. La URL de cada request se genera en Odoo al crear el webhook. IMPORTANTE: reemplazar las variables {{webhook_devolucion_url}} y {{webhook_stock_url}} con las URLs reales generadas por Odoo.",
+			"item": [
+				{
+					"name": "6.1 CASO 1 - Confirmar Devolucion de Libro",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Webhook procesado correctamente', function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
+									"});",
+									"console.log('Respuesta webhook devolucion:', pm.response.text());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"loan_reference\": \"LOAN-2026-00001\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{webhook_devolucion_url}}",
+							"host": ["{{webhook_devolucion_url}}"]
+						},
+						"description": "Simula un sistema externo (kiosco de auto-servicio, app móvil) notificando a Odoo que un libro fue devuelto físicamente.\n\nAntes de usar:\n1. Crear el webhook en Odoo (ver guía Caso 1)\n2. Copiar la URL generada en la variable {{webhook_devolucion_url}}\n3. Reemplazar 'LOAN-2026-00001' con una referencia real de préstamo en estado 'loaned'\n\nPayload:\n- loan_reference (string, requerido): referencia del préstamo a devolver"
+					},
+					"response": []
+				},
+				{
+					"name": "6.2 CASO 2 - Actualizar Stock de Libro",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Webhook procesado correctamente', function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
+									"});",
+									"console.log('Respuesta webhook stock:', pm.response.text());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"isbn\": \"9780132350884\",\n    \"quantity_added\": 3,\n    \"supplier_name\": \"Editorial Planeta\",\n    \"purchase_order_ref\": \"PO-2026-001\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{webhook_stock_url}}",
+							"host": ["{{webhook_stock_url}}"]
+						},
+						"description": "Simula un sistema de proveedor/distribuidor notificando a Odoo que llegaron ejemplares nuevos de un libro.\n\nAntes de usar:\n1. Crear el webhook en Odoo (ver guía Caso 2)\n2. Copiar la URL generada en la variable {{webhook_stock_url}}\n3. Reemplazar el ISBN con uno real del catálogo\n\nPayload:\n- isbn (string, requerido): ISBN del libro a actualizar\n- quantity_added (integer): ejemplares recibidos\n- supplier_name (string): nombre del proveedor (informativo)\n- purchase_order_ref (string): referencia de la orden de compra (informativo)"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
